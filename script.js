@@ -1300,10 +1300,8 @@ function showBirthdayPage(userName) {
     userInfoPage.classList.add('hidden');
 
     // 设置用户名
-    const displayName = document.getElementById('displayName');
     const greetingName = document.getElementById('greetingName');
 
-    if (displayName) displayName.textContent = userName;
     if (greetingName) greetingName.textContent = userName;
 
     // 显示生日页面
