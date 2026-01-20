@@ -312,13 +312,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const centerY = canvas.height / 2;
     const radius = Math.min(centerX, centerY) - 20;
     let logoImg = new Image();
-    logoImg.src = '/image/logo.png';
+    logoImg.src = '/HappyBirthdayToLan/image/logo.png';
     const targetPrizeIndex =8;
 
     // 初始化配置
     async function initConfig() {
         try {
-            const response = await fetch('config.json');
+            const response = await fetch('HappyBirthdayToLan/config.json');
             config = await response.json();
             prizes=config.wheelOptions;
             // 设置背景图
@@ -451,7 +451,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('错误详情:', this.error);
 
             // 使用备用视频
-            birthdayVideo.src = 'https://assets.mixkit.co/videos/preview/mixkit-happy-birthday-balloons-4887-large.mp4';
             birthdayVideo.load();
             birthdayVideo.play();
         });
@@ -1126,7 +1125,6 @@ document.addEventListener('DOMContentLoaded', function() {
         birthdayVideo.play().catch(e => {
             console.error('视频播放失败:', e);
             // 如果视频播放失败，显示备用视频
-            birthdayVideo.src = config.video.fallbackVideo || 'https://assets.mixkit.co/videos/preview/mixkit-happy-birthday-balloons-4887-large.mp4';
             birthdayVideo.play();
         });
 
