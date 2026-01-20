@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>生日抽奖轮盘</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 1200px;
+      width: 100%;
+      gap: 30px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      color: #FF6B8B;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      width: 100%;
+    }
+
+    .wheel-container {
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    #wheelCanvas {
+      display: block;
+      background-color: #fff;
+      border-radius: 50%;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .pointer {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 50px;
+      z-index: 10;
+    }
+
+    .pointer i {
+      font-size: 40px;
+      color: #FF6B8B;
+      filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+      gap: 20px;
+    }
+
+    #spinButton {
+      background: linear-gradient(to right, #FF6B8B, #FF8E53);
+      color: white;
+      border: none;
+      padding: 18px 45px;
+      font-size: 1.3rem;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(255, 107, 139, 0.3);
+      transition: all 0.3s ease;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    #spinButton:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 25px rgba(255, 107, 139, 0.4);
+    }
+
+    #spinButton:active {
+      transform: translateY(1px);
+    }
+
+    #spinButton:disabled {
+      background: linear-gradient(to right, #cccccc, #aaaaaa);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .result {
+      background-color: white;
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      min-width: 300px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+
+    .result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .result h3 {
+      color: #FF6B8B;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    .prize-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .prize-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .prize-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .prize-description {
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+
+    .prize-id {
+      color: #999;
+      font-size: 0.9rem;
+    }
+
+    .ultimate-badge {
+      background-color: gold;
+      color: #333;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin-top: 5px;
+      font-size: 0.9rem;
+      display: inline-block;
+    }
+
+    .prizes-list {
+      flex: 1;
+      min-width: 300px;
+      max-width: 500px;
+      background-color: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .prizes-list h3 {
+      color: #FF6B8B;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    .prize-items {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .prize-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-radius: 10px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .prize-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .item-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .item-details {
+      flex: 1;
+    }
+
+    .item-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+
+    .item-description {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .instructions {
+      text-align: center;
+      color: #666;
+      font-size: 1rem;
+      max-width: 600px;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    footer {
+      margin-top: 20px;
+      color: #999;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 900px) {
+      .content {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .wheel-container {
+        order: 1;
+      }
+
+      .result {
+        order: 2;
+        max-width: 400px;
+      }
+
+      .prizes-list {
+        order: 3;
+        max-width: 500px;
+      }
+
+      #wheelCanvas {
+        width: 300px;
+        height: 300px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      #wheelCanvas {
+        width: 280px;
+        height: 280px;
+      }
+
+      .prizes-list {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1><i class="fas fa-gift"></i> 生日幸运抽奖</h1>
+    <p class="subtitle">转动轮盘，赢取属于您的生日特别礼物！终极大奖正在等待幸运的你</p>
+  </header>
+
+  <div class="content">
+    <div class="wheel-container">
+      <div class="pointer">
+        <i class="fas fa-caret-down"></i>
+      </div>
+      <canvas id="wheelCanvas" width="500" height="500"></canvas>
+
+      <div class="controls">
+        <button id="spinButton">开始抽奖</button>
+        <p class="instructions">点击按钮开始转动轮盘，指针所指区域即为您获得的奖品</p>
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <h3>抽奖结果</h3>
+      <div class="prize-info">
+        <div class="prize-icon" id="resultIcon"></div>
+        <div class="prize-name" id="resultName">等待抽奖</div>
+        <div class="prize-description" id="resultDescription">点击开始按钮抽取您的奖品</div>
+        <div class="prize-id" id="resultId">奖品ID: --</div>
+        <div id="ultimateBadge" class="ultimate-badge" style="display: none;">终极大奖</div>
+      </div>
+    </div>
+
+    <div class="prizes-list">
+      <h3>奖品列表</h3>
+      <div class="prize-items" id="prizeItems">
+        <!-- 奖品列表会通过JS动态生成 -->
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>祝您生日快乐！抽奖活动最终解释权归主办方所有</p>
+  </footer>
+</div>
+
+<script>
+  // 奖品数据
+  const prizes = [
+    {
+      "id": 1,
+      "name": "旅游大奖",
+      "color": "#A1C4FD",
+      "icon": "fas fa-plane",
+      "description": "双人出行机票",
+      "isUltimate": false
+    },
+    {
+      "id": 2,
+      "name": "演唱会门票",
+      "color": "#FF9A9E",
+      "icon": "fas fa-music",
+      "description": "热门歌手演唱会门票",
+      "isUltimate": false
+    },
+    {
+      "id": 3,
+      "name": "生日蛋糕兑换券",
+      "color": "#FFD89B",
+      "icon": "fas fa-birthday-cake",
+      "description": "知名品牌美味生日蛋糕",
+      "isUltimate": false
+    },
+    {
+      "id": 4,
+      "name": "神秘礼盒",
+      "color": "#D4A5E8",
+      "icon": "fas fa-gift",
+      "description": "护肤品礼盒一套",
+      "isUltimate": false
+    },
+    {
+      "id": 5,
+      "name": "祝福卡片",
+      "color": "#A8E6CF",
+      "icon": "fas fa-heart",
+      "description": "专属生日祝福",
+      "isUltimate": false
+    },
+    {
+      "id": 6,
+      "name": "幸运红包",
+      "color": "#FFAAA5",
+      "icon": "fas fa-money-bill-wave",
+      "description": "随机金额红包",
+      "isUltimate": false
+    },
+    {
+      "id": 7,
+      "name": "终极大奖",
+      "color": "#FF6B8B",
+      "icon": "fas fa-trophy",
+      "description": "神秘终极大奖",
+      "isUltimate": true,
+      "isSpecial": true
+    }
+  ];
+
+  // 获取Canvas元素和上下文
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+  const spinButton = document.getElementById('spinButton');
+  const resultDiv = document.getElementById('result');
+  const resultName = document.getElementById('resultName');
+  const resultDescription = document.getElementById('resultDescription');
+  const resultIcon = document.getElementById('resultIcon');
+  const resultId = document.getElementById('resultId');
+  const ultimateBadge = document.getElementById('ultimateBadge');
+  const prizeItemsContainer = document.getElementById('prizeItems');
+
+  // 轮盘参数
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const radius = Math.min(centerX, centerY) - 20;
+  let isSpinning = false;
+  let currentRotation = 0;
+  let spinTimeout = null;
+
+  // 初始化奖品列表
+  function initPrizeList() {
+    prizeItemsContainer.innerHTML = '';
+    prizes.forEach(prize => {
+      const prizeItem = document.createElement('div');
+      prizeItem.className = 'prize-item';
+      prizeItem.style.backgroundColor = prize.color + '20'; // 添加透明度
+
+      prizeItem.innerHTML = `
+                    <div class="item-icon" style="background-color: ${prize.color}">
+                        <i class="${prize.icon}"></i>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">${prize.name} ${prize.isUltimate ? '<span style="color:#FF6B8B;">★</span>' : ''}</div>
+                        <div class="item-description">${prize.description}</div>
+                    </div>
+                `;
+
+      prizeItemsContainer.appendChild(prizeItem);
+    });
+  }
+
+  // 绘制轮盘
+  function drawWheel() {
+    // 清空画布
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const totalPrizes = prizes.length;
+    const angleStep = (2 * Math.PI) / totalPrizes;
+
+    // 绘制每个扇形
+    prizes.forEach((prize, index) => {
+      const startAngle = index * angleStep + currentRotation;
+      const endAngle = (index + 1) * angleStep + currentRotation;
+
+      // 绘制扇形
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+      ctx.closePath();
+      ctx.fillStyle = prize.color;
+      ctx.fill();
+
+      // 绘制扇形边框
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // 绘制文本和图标
+      drawPrizeText(prize, startAngle, endAngle);
+    });
+
+    // 绘制中心圆
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 50, 0, 2 * Math.PI);
+    ctx.fillStyle = '#FF6B8B';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    // 绘制中心文字
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 20px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('抽奖', centerX, centerY - 8);
+    ctx.font = '14px Arial';
+    ctx.fillText('开始', centerX, centerY + 12);
+  }
+
+  // 绘制奖品文本和图标
+  function drawPrizeText(prize, startAngle, endAngle) {
+    const midAngle = startAngle + (endAngle - startAngle) / 2;
+    const textRadius = radius * 0.7;
+    const iconRadius = radius * 0.5;
+
+    // 计算文本位置
+    const textX = centerX + Math.cos(midAngle) * textRadius;
+    const textY = centerY + Math.sin(midAngle) * textRadius;
+
+    // 计算图标位置
+    const iconX = centerX + Math.cos(midAngle) * iconRadius;
+    const iconY = centerY + Math.sin(midAngle) * iconRadius;
+
+    // 保存上下文状态
+    ctx.save();
+
+    // 旋转文本使其可读
+    ctx.translate(textX, textY);
+    ctx.rotate(midAngle + Math.PI / 2);
+
+    // 绘制奖品名称
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // 处理长文本换行
+    const maxWidth = 100;
+    const name = prize.name;
+    const lines = [];
+    let line = '';
+
+    for (let i = 0; i < name.length; i++) {
+      if (ctx.measureText(line + name[i]).width > maxWidth && line.length > 0) {
+        lines.push(line);
+        line = name[i];
+      } else {
+        line += name[i];
+      }
+    }
+    lines.push(line);
+
+    // 绘制多行文本
+    lines.forEach((line, index) => {
+      ctx.fillText(line, 0, index * 20 - (lines.length - 1) * 10);
+    });
+
+    // 恢复上下文状态
+    ctx.restore();
+
+    // 绘制图标
+    ctx.save();
+    ctx.translate(iconX, iconY);
+    ctx.rotate(midAngle + Math.PI / 2);
+
+    // 使用Font Awesome图标
+    const iconSize = 24;
+    ctx.font = `24px FontAwesome`;
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // 映射图标名称到Font Awesome字符
+    const iconMap = {
+      'fas fa-plane': '✈',
+      'fas fa-music': '♪',
+      'fas fa-birthday-cake': '🎂',
+      'fas fa-gift': '🎁',
+      'fas fa-heart': '❤',
+      'fas fa-money-bill-wave': '💰',
+      'fas fa-trophy': '🏆'
+    };
+
+    const iconChar = iconMap[prize.icon] || '🎁';
+    ctx.fillText(iconChar, 0, 0);
+
+    ctx.restore();
+  }
+
+  // 转动轮盘
+  function spinWheel() {
+    if (isSpinning) return;
+
+    // 设置状态
+    isSpinning = true;
+    spinButton.disabled = true;
+    resultDiv.classList.remove('show');
+
+    // 随机选择一个奖品（可以改为从服务器获取结果）
+    const selectedPrizeIndex = Math.floor(Math.random() * prizes.length);
+    const selectedPrize = prizes[selectedPrizeIndex];
+
+    // 计算旋转角度（确保指针指向所选奖品）
+    const totalPrizes = prizes.length;
+    const angleStep = 360 / totalPrizes;
+    // 旋转多圈后再停在选中的奖品
+    const extraRotation = 5 * 360; // 额外旋转5圈
+    const targetRotation = extraRotation - (selectedPrizeIndex * angleStep) - (angleStep / 2);
+
+    // 动画参数
+    let startTime = null;
+    const duration = 4000; // 4秒
+    const startRotation = currentRotation;
+
+    // 动画函数
+    function animateSpin(timestamp) {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // 使用缓动函数使旋转更自然
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      currentRotation = startRotation + (targetRotation * easeOut * Math.PI / 180);
+
+      drawWheel();
+
+      if (progress < 1) {
+        requestAnimationFrame(animateSpin);
+      } else {
+        // 动画结束
+        isSpinning = false;
+        spinButton.disabled = false;
+
+        // 显示结果
+        showResult(selectedPrize);
+      }
+    }
+
+    // 开始动画
+    requestAnimationFrame(animateSpin);
+  }
+
+  // 显示抽奖结果
+  function showResult(prize) {
+    resultName.textContent = prize.name;
+    resultDescription.textContent = prize.description;
+    resultId.textContent = `奖品ID: ${prize.id}`;
+    resultIcon.innerHTML = `<i class="${prize.icon}"></i>`;
+    resultIcon.style.backgroundColor = prize.color;
+
+    // 显示或隐藏终极大奖标志
+    if (prize.isUltimate) {
+      ultimateBadge.style.display = 'inline-block';
+    } else {
+      ultimateBadge.style.display = 'none';
+    }
+
+    // 显示结果区域
+    setTimeout(() => {
+      resultDiv.classList.add('show');
+    }, 500);
+
+    // 播放音效（可选）
+    playSound(prize.isUltimate);
+  }
+
+  // 播放音效
+  function playSound(isUltimate) {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      if (isUltimate) {
+        // 终极大奖音效
+        oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+        oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+        oscillator.frequency.setValueAtTime(1046.50, audioContext.currentTime + 0.3); // C6
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } else {
+        // 普通奖品音效
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime); // E5
+        oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime + 0.1); // C5
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      }
+    } catch (e) {
+      console.log("音频播放失败:", e);
+    }
+  }
+
+  // 初始化
+  function init() {
+    drawWheel();
+    initPrizeList();
+
+    // 绑定按钮点击事件
+    spinButton.addEventListener('click', spinWheel);
+
+    // 初始显示一个随机奖品信息
+    const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+    resultIcon.innerHTML = `<i class="${randomPrize.icon}"></i>`;
+    resultIcon.style.backgroundColor = randomPrize.color;
+  }
+
+  // 页面加载完成后初始化
+  window.addEventListener('load', init);
+
+  // 响应窗口大小变化
+  window.addEventListener('resize', function() {
+    // 在移动端调整Canvas大小
+    if (window.innerWidth <= 900) {
+      const size = Math.min(300, window.innerWidth - 40);
+      canvas.width = size;
+      canvas.height = size;
+      drawWheel();
+    } else {
+      canvas.width = 500;
+      canvas.height = 500;
+      drawWheel();
+    }
+  });
+</script>
+</body>
+</html>
