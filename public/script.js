@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 初始化配置
     async function initConfig() {
         try {
-            const response = await fetch('/api/config');
+            const response = await fetch('config.json');
             config = await response.json();
             prizes=config.wheelOptions;
             // 设置背景图
