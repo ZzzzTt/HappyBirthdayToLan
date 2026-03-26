@@ -1,0 +1,211 @@
+{
+  "brandConfigs": {
+    "零跑": {
+      "type": "image",
+      "value": "",
+      "color": "#00b386",
+      "base64": "./image/car/lp.webp"
+    },
+    "蔚来": {
+      "type": "image",
+      "value": "",
+      "color": "#0066ff",
+      "base64": "./image/car/wl.jpg"
+    },
+    "乐道": {
+      "type": "image",
+      "value": "",
+      "color": "#ff6600",
+      "base64": "./image/car/ld.jpg"
+    },
+    "问界": {
+      "type": "image",
+      "value": "",
+      "color": "#1a1a1a",
+      "base64": "./image/car/wj.jpeg"
+    },
+    "阿维塔": {
+      "type": "image",
+      "value": "",
+      "color": "#9b59b6",
+      "base64": "./image/car/awt.png"
+    },
+    "智己": {
+      "type": "image",
+      "value": "",
+      "color": "#e74c3c",
+      "base64": "./image/car/zj.jpg"
+    },
+    "奕境": {
+      "type": "image",
+      "value": "",
+      "color": "#3498db",
+      "base64": "./image/car/yj.jpg"
+    },
+    "智界": {
+      "type": "image",
+      "value": "",
+      "color": "#f39c12",
+      "base64": "./image/car/zj.webp"
+    },
+    "极氪": {
+      "type": "image",
+      "value": "",
+      "color": "#000000",
+      "base64": "./image/car/jk.jpg"
+    },
+    "理想": {
+      "type": "image",
+      "value": "",
+      "color": "#ff6600",
+      "base64": "./image/car/lx.webp"
+    }
+  },
+  "carData": [
+    {
+      "id": 1,
+      "brand": "零跑",
+      "model": "零跑D19",
+      "displayPrice": "23-30万元",
+      "priceMin": 23,
+      "priceMax": 30,
+      "category": "增程/纯电大型SUV",
+      "highlights": "全球首搭双高通8797芯片(1280TOPS算力)、LEAP 4.0架构...",
+      "releaseTime": "2026-05",
+      "releaseMonth": 17,
+      "status": "upcoming",
+      "notes": "2026年上半年上市"
+    },
+    {
+      "id": 2,
+      "brand": "蔚来",
+      "model": "蔚来ES9",
+      "displayPrice": "50-60万",
+      "priceMin": 50,
+      "priceMax": 60,
+      "category": "纯电大型SUV",
+      "highlights": "5365mm车长/3250mm轴距、三颗激光雷达...",
+      "releaseTime": "2026-04",
+      "releaseMonth": 16,
+      "status": "upcoming",
+      "notes": "4月9日技术发布会，6月1日交付"
+    },
+    {
+      "id": 3,
+      "brand": "乐道",
+      "model": "乐道L80",
+      "displayPrice": "25-30万元",
+      "priceMin": 25,
+      "priceMax": 30,
+      "category": "纯电大型SUV(5座)",
+      "highlights": "NT3.0平台、双舱超级大五座设计...",
+      "releaseTime": "2026-05",
+      "releaseMonth": 17,
+      "status": "upcoming",
+      "notes": "4月20几号技术发布，5月中旬上市"
+    },
+    {
+      "id": 4,
+      "brand": "问界",
+      "model": "问界M6",
+      "displayPrice": "26.98-28.98万",
+      "priceMin": 26.98,
+      "priceMax": 28.98,
+      "category": "增程/纯电中型SUV",
+      "highlights": "华为896线激光雷达、乾崑ADS 4.0智驾...",
+      "releaseTime": "2026-06",
+      "releaseMonth": 18,
+      "status": "upcoming",
+      "notes": "第二季度上市"
+    },
+    {
+      "id": 5,
+      "brand": "阿维塔",
+      "model": "阿维塔06T",
+      "displayPrice": "22-28万",
+      "priceMin": 22,
+      "priceMax": 28,
+      "category": "增程/纯电中型猎装车",
+      "highlights": "华为896线激光雷达、乾崑ADS智驾...",
+      "releaseTime": "2026-05",
+      "releaseMonth": 17,
+      "status": "upcoming",
+      "notes": "4月底-5月初上市"
+    },
+    {
+      "id": 6,
+      "brand": "智己",
+      "model": "智己LS8",
+      "displayPrice": "23-28万",
+      "priceMin": 23,
+      "priceMax": 28,
+      "category": "增程中大型SUV",
+      "highlights": "千问大模型首上车、全线控灵蜥数字底盘...",
+      "releaseTime": "2026-04",
+      "releaseMonth": 16,
+      "status": "upcoming",
+      "notes": "3月26日预售，4月上市"
+    },
+    {
+      "id": 7,
+      "brand": "奕境",
+      "model": "奕境首款车型",
+      "displayPrice": "35-45万",
+      "priceMin": 35,
+      "priceMax": 45,
+      "category": "纯电SUV",
+      "highlights": "华为乾崑智驾、鸿蒙座舱...",
+      "releaseTime": "2026-04",
+      "releaseMonth": 16,
+      "status": "upcoming",
+      "notes": "4月北京车展亮相"
+    },
+    {
+      "id": 8,
+      "brand": "智界",
+      "model": "智界V9",
+      "displayPrice": "50-65万",
+      "priceMin": 50,
+      "priceMax": 65,
+      "category": "增程大型MPV",
+      "highlights": "鸿蒙智行首款MPV、5359mm车长...",
+      "releaseTime": "2026-05",
+      "releaseMonth": 17,
+      "status": "upcoming",
+      "notes": "2026年4月下旬进店"
+    },
+    {
+      "id": 9,
+      "brand": "极氪",
+      "model": "极氪8X",
+      "displayPrice": "37.68-51.68万",
+      "priceMin": 37.68,
+      "priceMax": 51.68,
+      "category": "纯电中大型SUV",
+      "highlights": "800V高压平台、金砖电池...",
+      "releaseTime": "2026-06",
+      "releaseMonth": 18,
+      "status": "upcoming",
+      "notes": "2026年3月16日开启预售"
+    },
+    {
+      "id": 10,
+      "brand": "理想",
+      "model": "理想L9",
+      "displayPrice": "43.98-53.98万",
+      "priceMin": 43.98,
+      "priceMax": 53.98,
+      "category": "增程中大型SUV",
+      "highlights": "2560 TOPS算力、800V高压平台...",
+      "releaseTime": "2026-06",
+      "releaseMonth": 18,
+      "status": "upcoming",
+      "notes": "2026年4月北京车展首发"
+    }
+  ],
+  "meta": {
+    "version": "2.0",
+    "description": "2025-2026竞品新车发布计划配置",
+    "createdAt": "2026-03-26"
+  }
+}
