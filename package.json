@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "H5生日抽奖页面",
   "scripts": {
+    "start": "npx serve public",
+    "dev": "npx serve public",
     "deploy": "gh-pages -d public"
   },
   "devDependencies": {
-    "gh-pages": "^5.0.0"
+    "gh-pages": "^5.0.0",
+    "serve": "^14.0.0"
   }
 }

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>竞品新车计划 · 2026重磅车型看板</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f0f2f8;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'BlinkMacSystemFont', 'Roboto', sans-serif;
+      margin: 0;
+      padding: 28px 20px;
+      color: #1a2c3e;
+    }
+
+    .dashboard-container {
+      max-width: 1500px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 32px;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+      overflow-x: auto;
+      transition: all 0.2s;
+    }
+
+    .header {
+      padding: 22px 28px 16px 28px;
+      border-bottom: 1px solid #eef2f6;
+      background: #ffffff;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .title-section h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+      background: linear-gradient(145deg, #1f3a4b, #2c6280);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.4px;
+    }
+
+    .title-section p {
+      font-size: 0.85rem;
+      color: #5d7184;
+      margin: 0;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: #f8fafc;
+      border: 1px solid #dce5ec;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #1f4662;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: #1e4a6b;
+      border-color: #1e4a6b;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0e3852;
+      transform: translateY(-1px);
+    }
+
+    .btn:hover {
+      background: #eef3fc;
+      border-color: #cbdde9;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .table-wrapper {
+      padding: 0 0 16px 0;
+      overflow-x: auto;
+    }
+
+    .editable-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      min-width: 1000px;
+    }
+
+    .editable-table th {
+      text-align: left;
+      padding: 18px 16px;
+      background-color: #fafcff;
+      font-weight: 600;
+      color: #1e4a6b;
+      border-bottom: 1px solid #e6edf4;
+      font-size: 0.85rem;
+      letter-spacing: 0.3px;
+    }
+
+    .editable-table td {
+      padding: 15px 16px;
+      border-bottom: 1px solid #eff3f8;
+      vertical-align: top;
+      word-break: break-word;
+      background-color: #ffffff;
+      transition: background 0.1s;
+    }
+
+    .editable-table tr:hover td {
+      background-color: #fefbf0;
+    }
+
+    [contenteditable="true"] {
+      outline: none;
+      cursor: text;
+      border-radius: 8px;
+      padding: 2px 4px;
+      transition: background 0.1s, box-shadow 0.1s;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    [contenteditable="true"]:focus {
+      background-color: #fff6e0;
+      box-shadow: 0 0 0 2px rgba(30, 74, 107, 0.15);
+    }
+
+    .model-highlight {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #0b4f6c;
+    }
+
+    .footer-actions {
+      padding: 18px 28px 24px;
+      border-top: 1px solid #ecf2f8;
+      display: flex;
+      gap: 16px;
+      justify-content: flex-end;
+      background: #ffffff;
+      flex-wrap: wrap;
+    }
+
+    .info-note {
+      font-size: 0.7rem;
+      color: #6a7f9b;
+      margin-right: auto;
+      align-self: center;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 16px;
+      }
+
+      .header {
+        flex-direction: column;
+      }
+
+      .editable-table th,
+      .editable-table td {
+        padding: 12px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard-container">
+  <div class="header">
+    <div class="title-section">
+      <h1>📊 竞品新车计划 · 2026年重磅车型</h1>
+      <p>基于最新数据表格 · 双击单元格可编辑内容 · 支持新增/导出/重置</p>
+    </div>
+    <div class="toolbar">
+      <button class="btn" id="addRowBtn">➕ 新增车型</button>
+      <button class="btn" id="exportJsonBtn">📄 导出 JSON</button>
+      <button class="btn" id="exportCsvBtn">📎 导出 CSV</button>
+      <button class="btn" id="resetDataBtn">⟳ 重置数据</button>
+    </div>
+  </div>
+  <div class="table-wrapper">
+    <table class="editable-table" id="mainTable">
+      <thead>
+      <tr>
+        <th style="width: 18%">车型名称</th>
+        <th style="width: 16%">预测价格区间</th>
+        <th style="width: 18%">动力形式 / 定位</th>
+        <th style="width: 34%">核心配置 / 技术亮点</th>
+        <th style="width: 14%">发布 / 上市节奏</th>
+      </tr>
+      </thead>
+      <tbody id="tableBody">
+      <!-- 动态渲染JS填充，全部可编辑 -->
+      </tbody>
+    </table>
+  </div>
+  <div class="footer-actions">
+    <div class="info-note">
+      ✏️ 直接点击文字修改，所有更改自动保存至内存。支持新增、导出CSV/JSON，一键重置为原始表格。
+    </div>
+    <button class="btn" id="copySnapshotBtn">📋 复制表格快照</button>
+  </div>
+</div>
+
+<script>
+  // ======================= 全新数据集 (严格按照提供的表格内容) =======================
+  // 字段: 车型, 价格, 动力定位, 核心配置亮点, 上市节奏
+  let carData = [
+    {
+      model: "零跑D19",
+      price: "23-30万元 (预测)",
+      powerPosition: "增程/纯电大型SUV",
+      coreConfig: "全球首搭双高通8797芯片(1280TOPS算力)、LEAP 4.0架构、增程版80.3kWh大电池纯电续航500km、纯电版115kWh电池续航720km、五屏交互、零重力座椅、首创“森野氧舱”车载制氧系统",
+      schedule: "2026年上半年上市"
+    },
+    {
+      model: "蔚来ES9",
+      price: "50万元级别 (预测)",
+      powerPosition: "纯电大型SUV",
+      coreConfig: "5365mm车长/3250mm轴距、三颗激光雷达、天行智能底盘(线控转向+后轮转向+全主动悬架)、900V高压架构、102kWh电池、神玑NX9031芯片",
+      schedule: "4月9日技术发布会,6月1交付"
+    },
+    {
+      model: "乐道L80",
+      price: "25-30万元 (预测，BaaS方案或下探至18万元级)",
+      powerPosition: "纯电大型SUV(5座)",
+      coreConfig: "NT3.0平台、双舱超级大五座设计、激光雷达版本可选、85kWh电池、3分钟换电、前后双电机、四驱版440kW功率",
+      schedule: "4月20几号技术发布,5月中旬上市"
+    },
+    {
+      model: "问界M6",
+      price: "26.98-28.98万元起 (预售价)",
+      powerPosition: "增程/纯电中型SUV",
+      coreConfig: "华为896线激光雷达、乾崑ADS 4.0智驾、鸿蒙座舱5.0、增程版纯电续航300km、纯电版续航625km、风阻系数0.239、700mm应急涉水",
+      schedule: "第二季度上市"
+    },
+    {
+      model: "阿维塔06T",
+      price: "约22-28万元级（预估）",
+      powerPosition: "增程/纯电中型猎装车",
+      coreConfig: "华为896线激光雷达、乾崑ADS智驾、鸿蒙座舱、纯电版续航741km、增程版纯电续航245km、猎装造型、旅行车设计",
+      schedule: "4月底-5月初上市"
+    },
+    {
+      model: "智己LS8",
+      price: "23-28万元 (预测)",
+      powerPosition: "增程中大型SUV",
+      coreConfig: "千问大模型首上车、全线控灵蜥数字底盘、后轮转向、IM AD ZETA智驾、增程版纯电续航335km、5座/6座可选、3月26日预售",
+      schedule: "3月26日预售,4月上市"
+    },
+    {
+      model: "奕境首款车型",
+      price: "35-45万元 (预估)",
+      powerPosition: "纯电SUV",
+      coreConfig: "华为乾崑智驾、鸿蒙座舱、华为XMC数字底盘、896线激光雷达、东风与华为合作新品牌",
+      schedule: "4月北京车展亮相"
+    },
+    {
+      model: "智界V9",
+      price: "50万以上（预估）",
+      powerPosition: "增程大型MPV",
+      coreConfig: "鸿蒙智行首款MPV、5359mm车长/3250mm轴距、1.5T增程动力、综合续航1250km、7座布局+旋转座椅、2月完成工信部申报",
+      schedule: "2026年4月下旬进店，预计二季度上市"
+    },
+    {
+      model: "极氪8X",
+      price: "37.68—51.68（预售价）",
+      powerPosition: "纯电中大型SUV",
+      coreConfig: "800V高压平台、金砖电池、激光雷达、浩瀚智驾2.0、8295芯片、15分钟充电500km",
+      schedule: "2026年3月16日开启预售，第二季度上市"
+    },
+    {
+      model: "理想L9",
+      price: "43.98—53.98",
+      powerPosition: "增程中大型SUV",
+      coreConfig: "2560 TOPS 算力、800V高压平台、全线控底盘 + 四轮转向、340公里纯电续航",
+      schedule: "2026年4月北京车展首发亮相，第二季度上市"
+    }
+  ];
+
+  // DOM 元素
+  const tbody = document.getElementById('tableBody');
+
+  // 渲染表格 (所有单元格 contenteditable 并绑定数据同步)
+  function renderTable() {
+    tbody.innerHTML = '';
+    carData.forEach((item, idx) => {
+      const row = tbody.insertRow();
+
+      // 车型列
+      const cellModel = row.insertCell(0);
+      cellModel.setAttribute('contenteditable', 'true');
+      cellModel.setAttribute('data-field', 'model');
+      cellModel.setAttribute('data-idx', idx);
+      cellModel.innerText = item.model || '';
+      cellModel.classList.add('model-highlight');
+
+      // 价格列
+      const cellPrice = row.insertCell(1);
+      cellPrice.setAttribute('contenteditable', 'true');
+      cellPrice.setAttribute('data-field', 'price');
+      cellPrice.setAttribute('data-idx', idx);
+      cellPrice.innerText = item.price || '';
+
+      // 动力/定位列
+      const cellPower = row.insertCell(2);
+      cellPower.setAttribute('contenteditable', 'true');
+      cellPower.setAttribute('data-field', 'powerPosition');
+      cellPower.setAttribute('data-idx', idx);
+      cellPower.innerText = item.powerPosition || '';
+
+      // 核心配置列
+      const cellConfig = row.insertCell(3);
+      cellConfig.setAttribute('contenteditable', 'true');
+      cellConfig.setAttribute('data-field', 'coreConfig');
+      cellConfig.setAttribute('data-idx', idx);
+      cellConfig.innerText = item.coreConfig || '';
+
+      // 上市节奏列
+      const cellSchedule = row.insertCell(4);
+      cellSchedule.setAttribute('contenteditable', 'true');
+      cellSchedule.setAttribute('data-field', 'schedule');
+      cellSchedule.setAttribute('data-idx', idx);
+      cellSchedule.innerText = item.schedule || '';
+
+      // 绑定失焦事件更新内存数据
+      const updateData = (e, field) => {
+        const newVal = e.target.innerText.trim();
+        const index = parseInt(e.target.getAttribute('data-idx'));
+        if (!isNaN(index) && carData[index]) {
+          carData[index][field] = newVal;
+        }
+      };
+
+      cellModel.addEventListener('blur', (e) => updateData(e, 'model'));
+      cellPrice.addEventListener('blur', (e) => updateData(e, 'price'));
+      cellPower.addEventListener('blur', (e) => updateData(e, 'powerPosition'));
+      cellConfig.addEventListener('blur', (e) => updateData(e, 'coreConfig'));
+      cellSchedule.addEventListener('blur', (e) => updateData(e, 'schedule'));
+    });
+  }
+
+  // 新增车型 (带默认占位信息)
+  function addNewRow() {
+    const newCar = {
+      model: "新车型",
+      price: "待定",
+      powerPosition: "纯电/增程",
+      coreConfig: "请补充激光雷达、芯片、电池等亮点",
+      schedule: "待公布"
+    };
+    carData.push(newCar);
+    renderTable();
+  }
+
+  // 重置为原始提供的完整表格数据
+  function resetToOriginal() {
+    carData = [
+      {
+        model: "零跑D19",
+        price: "23-30万元 (预测)",
+        powerPosition: "增程/纯电大型SUV",
+        coreConfig: "全球首搭双高通8797芯片(1280TOPS算力)、LEAP 4.0架构、增程版80.3kWh大电池纯电续航500km、纯电版115kWh电池续航720km、五屏交互、零重力座椅、首创“森野氧舱”车载制氧系统",
+        schedule: "2026年上半年上市"
+      },
+      {
+        model: "蔚来ES9",
+        price: "50万元级别 (预测)",
+        powerPosition: "纯电大型SUV",
+        coreConfig: "5365mm车长/3250mm轴距、三颗激光雷达、天行智能底盘(线控转向+后轮转向+全主动悬架)、900V高压架构、102kWh电池、神玑NX9031芯片",
+        schedule: "4月9日技术发布会,6月1交付"
+      },
+      {
+        model: "乐道L80",
+        price: "25-30万元 (预测，BaaS方案或下探至18万元级)",
+        powerPosition: "纯电大型SUV(5座)",
+        coreConfig: "NT3.0平台、双舱超级大五座设计、激光雷达版本可选、85kWh电池、3分钟换电、前后双电机、四驱版440kW功率",
+        schedule: "4月20几号技术发布,5月中旬上市"
+      },
+      {
+        model: "问界M6",
+        price: "26.98-28.98万元起 (预售价)",
+        powerPosition: "增程/纯电中型SUV",
+        coreConfig: "华为896线激光雷达、乾崑ADS 4.0智驾、鸿蒙座舱5.0、增程版纯电续航300km、纯电版续航625km、风阻系数0.239、700mm应急涉水",
+        schedule: "第二季度上市"
+      },
+      {
+        model: "阿维塔06T",
+        price: "约22-28万元级（预估）",
+        powerPosition: "增程/纯电中型猎装车",
+        coreConfig: "华为896线激光雷达、乾崑ADS智驾、鸿蒙座舱、纯电版续航741km、增程版纯电续航245km、猎装造型、旅行车设计",
+        schedule: "4月底-5月初上市"
+      },
+      {
+        model: "智己LS8",
+        price: "23-28万元 (预测)",
+        powerPosition: "增程中大型SUV",
+        coreConfig: "千问大模型首上车、全线控灵蜥数字底盘、后轮转向、IM AD ZETA智驾、增程版纯电续航335km、5座/6座可选、3月26日预售",
+        schedule: "3月26日预售,4月上市"
+      },
+      {
+        model: "奕境首款车型",
+        price: "35-45万元 (预估)",
+        powerPosition: "纯电SUV",
+        coreConfig: "华为乾崑智驾、鸿蒙座舱、华为XMC数字底盘、896线激光雷达、东风与华为合作新品牌",
+        schedule: "4月北京车展亮相"
+      },
+      {
+        model: "智界V9",
+        price: "50万以上（预估）",
+        powerPosition: "增程大型MPV",
+        coreConfig: "鸿蒙智行首款MPV、5359mm车长/3250mm轴距、1.5T增程动力、综合续航1250km、7座布局+旋转座椅、2月完成工信部申报",
+        schedule: "2026年4月下旬进店，预计二季度上市"
+      },
+      {
+        model: "极氪8X",
+        price: "37.68—51.68（预售价）",
+        powerPosition: "纯电中大型SUV",
+        coreConfig: "800V高压平台、金砖电池、激光雷达、浩瀚智驾2.0、8295芯片、15分钟充电500km",
+        schedule: "2026年3月16日开启预售，第二季度上市"
+      },
+      {
+        model: "理想L9",
+        price: "43.98—53.98",
+        powerPosition: "增程中大型SUV",
+        coreConfig: "2560 TOPS 算力、800V高压平台、全线控底盘 + 四轮转向、340公里纯电续航",
+        schedule: "2026年4月北京车展首发亮相，第二季度上市"
+      }
+    ];
+    renderTable();
+  }
+
+  // 导出 JSON
+  function exportJSON() {
+    const dataStr = JSON.stringify(carData, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'competitor_cars_2026.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // 导出 CSV (UTF-8 with BOM)
+  function exportCSV() {
+    const headers = ['车型名称', '预测价格区间', '动力形式/定位', '核心配置/技术亮点', '发布/上市节奏'];
+    const rows = carData.map(item => [
+      item.model,
+      item.price,
+      item.powerPosition,
+      item.coreConfig,
+      item.schedule
+    ]);
+    const csvLines = [];
+    csvLines.push(headers.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','));
+    for (const row of rows) {
+      const escapedRow = row.map(cell => {
+        if (cell === undefined || cell === null) return '""';
+        const str = String(cell);
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      }).join(',');
+      csvLines.push(escapedRow);
+    }
+    const csvContent = csvLines.join('\n');
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', 'competitor_plan_2026.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  // 复制表格快照（带基本样式、无contenteditable属性）
+  async function copyTableSnapshot() {
+    const tableElem = document.getElementById('mainTable');
+    const cloneTable = tableElem.cloneNode(true);
+    // 移除编辑属性，让复制的内容更整洁
+    cloneTable.querySelectorAll('[contenteditable="true"]').forEach(el => {
+      el.removeAttribute('contenteditable');
+      el.style.backgroundColor = 'transparent';
+      el.style.boxShadow = 'none';
+    });
+    // 克隆后的表格转成html字符串
+    const htmlContent = cloneTable.outerHTML;
+    const plainText = carData.map(c => `${c.model} | ${c.price} | ${c.powerPosition} | ${c.coreConfig.substring(0, 80)}... | ${c.schedule}`).join('\n');
+    try {
+      const clipboardItem = new ClipboardItem({
+        'text/html': new Blob([htmlContent], { type: 'text/html' }),
+        'text/plain': new Blob([plainText], { type: 'text/plain' })
+      });
+      await navigator.clipboard.write([clipboardItem]);
+      alert('✅ 表格快照已复制 (含富文本格式)，可粘贴到Word、邮件或支持HTML的编辑器中');
+    } catch (err) {
+      // fallback
+      const textarea = document.createElement('textarea');
+      textarea.value = plainText;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert('⚠️ 已复制纯文本版本，完整表格快照可尝试手动导出CSV');
+    }
+  }
+
+  // 初始化事件绑定
+  document.addEventListener('DOMContentLoaded', () => {
+    renderTable();
+
+    const addBtn = document.getElementById('addRowBtn');
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const resetBtn = document.getElementById('resetDataBtn');
+    const copyBtn = document.getElementById('copySnapshotBtn');
+
+    if (addBtn) addBtn.addEventListener('click', addNewRow);
+    if (exportJsonBtn) exportJsonBtn.addEventListener('click', exportJSON);
+    if (exportCsvBtn) exportCsvBtn.addEventListener('click', exportCSV);
+    if (resetBtn) resetBtn.addEventListener('click', resetToOriginal);
+    if (copyBtn) copyBtn.addEventListener('click', copyTableSnapshot);
+  });
+</script>
+</body>
+</html>

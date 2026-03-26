@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025-2026竞品新车发布计划 - 品牌配置版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .multi-select {
+            position: relative;
+            min-width: 140px;
+            font-size: 14px;
+        }
+
+        .multi-select-trigger {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: all 0.3s;
+        }
+
+        .multi-select-trigger:hover {
+            border-color: #667eea;
+        }
+
+        .multi-select-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 4px;
+            max-height: 250px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+
+        .multi-select-dropdown.show {
+            display: block;
+        }
+
+        .multi-select-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .multi-select-option:hover {
+            background: #f8f9fa;
+        }
+
+        .multi-select-option input[type="checkbox"] {
+            cursor: pointer;
+            margin: 0;
+            width: 16px;
+            height: 16px;
+        }
+
+        .multi-select-option label {
+            cursor: pointer;
+            flex: 1;
+            margin: 0;
+            font-weight: normal;
+            color: #333;
+            font-size: 13px;
+        }
+
+        .multi-select-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 4px 0;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .filter-group select {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .chart-container {
+            position: relative;
+            /*padding: 40px;*/
+            display: flex;          /* 横向排列 */
+            gap: 20px;              /* 图表与图片间距 */
+        }
+
+        .chart-wrapper {
+            position: relative;
+            min-width: 800px;
+            height: 1000px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .grid-line {
+            stroke: #e0e0e0;
+            stroke-width: 1;
+            stroke-dasharray: 4, 4;
+        }
+
+        .axis-line {
+            stroke: #333;
+            stroke-width: 2;
+        }
+
+        .axis-text {
+            font-size: 12px;
+            fill: #666;
+            font-weight: 500;
+        }
+
+        .month-label {
+            font-size: 14px;
+            fill: #333;
+            font-weight: 600;
+            text-anchor: middle;
+        }
+
+        .price-label {
+            font-size: 13px;
+            fill: #333;
+            font-weight: 600;
+            text-anchor: end;
+        }
+
+        .data-point {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .data-point:hover {
+            transform: scale(1.05);
+        }
+
+        .car-logo {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .car-info {
+            font-size: 10px;
+            fill: #e74c3c;
+            font-weight: 500;
+        }
+
+        .car-name {
+            font-size: 12px;
+            fill: #333;
+            font-weight: 700;
+            text-anchor: middle;
+        }
+
+        .highlight-box {
+            fill: none;
+            stroke: #e74c3c;
+            stroke-width: 3;
+            stroke-dasharray: 8, 4;
+            rx: 8;
+        }
+
+        .highlight-label {
+            font-size: 12px;
+            fill: #e74c3c;
+            font-weight: 700;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 350px;
+            line-height: 1.5;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .price-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .price-input-group input {
+            flex: 1;
+        }
+
+        .price-input-group span {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+            font-weight: normal;
+        }
+
+        .brand-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .brand-icon-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: #667eea;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .brand-icon-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .data-table {
+            margin-top: 30px;
+            padding: 0 30px 30px;
+            display: flex;          /* 新增：Flex并排布局 */
+            gap: 30px;              /* 新增：间距 */
+            align-items: flex-start;/* 新增：顶部对齐 */
+        }
+
+        .table-wrapper {
+            flex: 1;                /* 表格区域自适应宽度 */
+            overflow-x: auto;       /* 表格可横向滚动 */
+        }
+
+        .image-showcase {
+            width: 300px;           /* 图片区域固定宽度 */
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            flex-shrink: 0;         /* 禁止压缩 */
+        }
+
+        .image-showcase h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 16px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .image-showcase img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+            background: #f8f9fa;
+        }
+
+        .image-showcase .placeholder {
+            width: 100%;
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+            border: 2px dashed #ddd;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .data-table h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            margin-right: 8px;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+
+        .table-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .edit-btn {
+            background: #3498db;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-upcoming {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-released {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-concept {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .brand-config-modal .preset-icons {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .brand-config-modal .preset-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+            background: white;
+            border: 2px solid transparent;
+        }
+
+        .brand-config-modal .preset-icon:hover, .brand-config-modal .preset-icon.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .brand-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .brand-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            justify-content: space-between;
+        }
+
+        .brand-item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            overflow: hidden;
+        }
+
+        .brand-item-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .icon-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .icon-type-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .icon-type-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .icon-preview-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 15px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            background: #667eea;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .icon-preview-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .config-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #0066cc;
+            display: none;
+        }
+
+        .config-info.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                margin-left: 0;
+                justify-content: space-between;
+            }
+
+            .chart-container {
+                padding: 20px;
+            }
+
+            .brand-config-modal .preset-icons {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>2025-2026年竞品新车发布计划路线图</h1>
+        <div class="subtitle">品牌配置管理 | 配置文件加载 | 价格区间定位 + 显示价格展示</div>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-primary" onclick="openCarModal()">+ 添加新车</button>
+        <button class="btn btn-warning" onclick="openBrandModal()">⚙️ 品牌配置</button>
+        <button class="btn btn-info" onclick="loadConfigFile()">📂 加载配置</button>
+        <button class="btn btn-success" onclick="downloadData()">💾 导出数据</button>
+        <input type="file" id="fileInput" style="display:none" accept=".json" onchange="handleFileLoad(event)">
+        <input type="file" id="configFileInput" style="display:none" accept=".json"
+               onchange="handleConfigFileLoad(event)">
+
+        <div class="filter-group">
+            <label>价格筛选：</label>
+            <select id="priceFilter" onchange="refreshAll()">
+                <option value="all">全部价格</option>
+                <option value="0-25">25万以下</option>
+                <option value="25-40">25-40万</option>
+                <option value="40-100">40万以上</option>
+            </select>
+
+            <label>品牌筛选：</label>
+            <div class="multi-select" id="brandFilterContainer">
+                <div class="multi-select-trigger" onclick="toggleBrandDropdown()">
+                    <span id="brandFilterText">全部品牌</span>
+                    <span style="margin-left:8px;font-size:10px;">▼</span>
+                </div>
+                <div class="multi-select-dropdown" id="brandDropdown">
+                    <div class="multi-select-option" onclick="toggleBrandCheckbox('all')">
+                        <input type="checkbox" id="brand_all" value="all" checked onchange="refreshAll()">
+                        <label for="brand_all">全部品牌</label>
+                    </div>
+                    <div class="multi-select-divider"></div>
+                    <div id="brandOptionsContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="config-info" id="configInfo">
+        ✅ 已加载配置文件：<span id="configFileName"></span>（品牌：<span id="configBrandCount">0</span>个，车型：<span
+            id="configCarCount">0</span>个）
+    </div>
+
+    <div class="chart-container">
+        <!-- 左侧图表区域 -->
+        <div style="flex: 1; position: relative; ">
+            <div class="chart-wrapper">
+                <svg id="chart"></svg>
+            </div>
+            <div class="tooltip" id="tooltip"></div>
+        </div>
+
+        <!-- 右侧图片：无背景色、无边框、无宽度限制，高度与图表一致 -->
+        <img src="./image/car/detail.png"
+             style="height: 750px;width: 500px;object-fit: fill; flex-shrink: 0; display: block;    margin-left: auto;"
+             onerror="this.style.display='none'">
+    </div>
+
+    <div class="data-table">
+        <div class="table-wrapper">
+            <h3>数据配置表（共 <span id="totalCount">0</span> 款车型）</h3>
+            <table id="dataTable">
+                <thead>
+                <tr>
+                    <th>图标</th>
+                    <th>品牌</th>
+                    <th>车型</th>
+                    <th>图表显示价格</th>
+                    <th>价格区间（定位）</th>
+                    <th>类别</th>
+                    <th>发布时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+
+    </div>
+</div>
+
+<!-- 车型编辑模态框 -->
+<div class="modal" id="carModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="carModalTitle">添加新车</h3>
+            <button class="close-btn" onclick="closeCarModal()">&times;</button>
+        </div>
+        <form id="carForm">
+            <input type="hidden" id="editCarId">
+
+            <div class="form-group">
+                <label>选择品牌 <span style="color:#e74c3c">*</span></label>
+                <div class="brand-selector">
+                    <select id="carBrand" required onchange="updateBrandPreview()">
+                        <!-- 动态填充 -->
+                    </select>
+                    <div class="brand-icon-preview" id="selectedBrandIcon">
+                        <span>品</span>
+                    </div>
+                </div>
+                <small style="color:#999">如需添加新品牌，请点击"品牌配置"按钮</small>
+            </div>
+
+            <div class="form-group">
+                <label>车型名称 <span style="color:#e74c3c">*</span></label>
+                <input type="text" id="carModel" required placeholder="如：D19">
+            </div>
+
+            <div class="form-group">
+                <label>价格区间（用于Y轴图表定位） <span style="color:#e74c3c">*</span></label>
+                <div class="price-input-group">
+                    <input type="number" id="priceMin" required placeholder="最低价" min="0" step="0.01">
+                    <span>-</span>
+                    <input type="number" id="priceMax" required placeholder="最高价" min="0" step="0.01">
+                    <span>万元</span>
+                </div>
+                <div class="help-text">填写数字范围（如：20 和 30），决定车辆在图表Y轴上的位置</div>
+            </div>
+
+            <div class="form-group">
+                <label>图表显示价格（用于页面展示） <span style="color:#e74c3c">*</span></label>
+                <input type="text" id="displayPrice" required placeholder="如：23-30万元（预测）">
+                <div class="help-text">填写展示文本（如：23-30万元（预测）、约25万起、待定等），将显示在图表中</div>
+            </div>
+
+            <div class="form-group">
+                <label>车辆类别 <span style="color:#e74c3c">*</span></label>
+                <input type="text" id="carCategory" required placeholder="如：增程/纯电大型SUV">
+            </div>
+
+            <div class="form-group">
+                <label>发布时间 <span style="color:#e74c3c">*</span></label>
+                <select id="carReleaseTime" required>
+                    <!-- 动态生成 -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>核心配置亮点</label>
+                <textarea id="carHighlights" rows="3" placeholder="芯片、续航、智驾系统等核心卖点..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>详细备注</label>
+                <textarea id="carNotes" rows="2" placeholder="其他补充信息..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%">保存车型</button>
+        </form>
+    </div>
+</div>
+
+<!-- 品牌配置模态框 -->
+<div class="modal brand-config-modal" id="brandModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">品牌配置管理</h3>
+            <button class="close-btn" onclick="closeBrandModal()">&times;</button>
+        </div>
+
+        <div style="margin-bottom:20px;padding:15px;background:#f8f9fa;border-radius:8px;">
+            <h4 style="margin-bottom:15px;color:#333;">添加新品牌</h4>
+            <form id="brandForm">
+                <div class="form-group">
+                    <label>品牌名称</label>
+                    <input type="text" id="newBrandName" required placeholder="如：小米">
+                </div>
+
+                <div class="form-group">
+                    <label>图标类型</label>
+                    <div class="icon-type-selector">
+                        <button type="button" class="icon-type-btn active" onclick="setBrandIconType('text')">文字
+                        </button>
+                        <button type="button" class="icon-type-btn" onclick="setBrandIconType('emoji')">Emoji</button>
+                        <button type="button" class="icon-type-btn" onclick="setBrandIconType('image')">图片</button>
+                    </div>
+                </div>
+
+                <div id="brandIconTextSection">
+                    <div class="form-group">
+                        <label>显示文字</label>
+                        <input type="text" id="brandIconText" maxlength="1" placeholder="如：米" value="品">
+                    </div>
+                </div>
+
+                <div id="brandIconEmojiSection" style="display:none;">
+                    <label>选择Emoji</label>
+                    <div class="preset-icons" id="emojiGrid"></div>
+                    <input type="hidden" id="selectedEmoji" value="🚗">
+                </div>
+
+                <div id="brandIconImageSection" style="display:none;">
+                    <label>上传品牌Logo</label>
+                    <div class="upload-area" onclick="document.getElementById('brandLogoUpload').click()">
+                        <input type="file" id="brandLogoUpload" accept="image/*"
+                               onchange="handleBrandLogoUpload(event)">
+                        <p>点击上传图片（建议正方形，不超过500KB）</p>
+                        <small style="color:#999">支持 PNG, JPG, SVG</small>
+                    </div>
+                    <input type="hidden" id="brandLogoBase64">
+                </div>
+
+                <div class="icon-preview-large" id="brandIconPreview" style="background:#667eea;">
+                    <span>品</span>
+                </div>
+
+                <div class="form-group">
+                    <label>主题颜色</label>
+                    <input type="color" id="brandColor" value="#667eea" style="height:40px;cursor:pointer;">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%">添加品牌</button>
+            </form>
+        </div>
+
+        <h4 style="margin-bottom:15px;color:#333;">已有品牌列表</h4>
+        <div class="brand-list" id="brandList"></div>
+    </div>
+</div>
+
+<script>
+    // ============================================
+    // 默认品牌配置（当没有配置文件时使用）
+    // ============================================
+    const defaultBrandConfigs = {
+        "零跑": {type: "image", value: "", color: "#00b386", base64: "./image/car/lp.webp"},
+        "蔚来": {type: "image", value: "", color: "#0066ff", base64: "./image/car/wl.jpg"},
+        "乐道": {type: "image", value: "", color: "#ff6600", base64: "./image/car/ld.jpg"},
+        "问界": {type: "image", value: "", color: "#1a1a1a", base64: "./image/car/wj.jpeg"},
+        "阿维塔": {type: "image", value: "", color: "#9b59b6", base64: "./image/car/awt.png"},
+        "智己": {type: "image", value: "", color: "#e74c3c", base64: "./image/car/zj.jpg"},
+        "奕派": {type: "image", value: "", color: "#3498db", base64: "./image/car/yp.jpg"},
+        "智界": {type: "image", value: "", color: "#f39c12", base64: "./image/car/zj.webp"},
+        "极氪": {type: "image", value: "", color: "#000000", base64: "./image/car/jk.jpg"},
+        "理想": {type: "image", value: "", color: "#ff6600", base64: "./image/car/lx.webp"}
+    };
+
+    // 默认车型数据（当没有配置文件时使用）
+    const defaultCarData = [
+        {
+            "id": 1,
+            "brand": "零跑",
+            "model": "零跑D19",
+            "displayPrice": "23-30万元",
+            "priceMin": 23,
+            "priceMax": 30,
+            "category": "增程/纯电大型SUV",
+            "highlights": "全球首搭双高通8797芯片(1280TOPS算力)、LEAP 4.0架构...",
+            "releaseTime": "2026-05",
+            "releaseMonth": 17,
+            "status": "upcoming",
+            "notes": "2026年上半年上市"
+        },
+    ];
+
+    // Emoji列表
+    const emojiList = ['🚗', '🚙', '🚕', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '⭐', '🔥', '💎', '⚡', '🔋', '🚀', '🛸', '✈️', '🚁', '🚂', '🦁', '🐯', '🐎', '🦅', '🐉', '🐲', '🦌', '🦈', '🐘', '🦏', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '🟤'];
+
+    // 时间选项配置
+    const timeOptions = [
+        {value: '2026-03', label: '2026年3月', month: 15},
+        {value: '2026-04', label: '2026年4月', month: 16},
+        {value: '2026-05', label: '2026年5月', month: 17},
+        {value: '2026-06', label: '2026年6月', month: 18},
+        {value: '2026-07', label: '2026年7月', month: 19},
+        {value: '2026-08', label: '2026年8月', month: 20},
+        {value: '2026-09', label: '2026年9月', month: 21},
+        {value: '2026-10', label: '2026年10月', month: 22},
+        {value: '2026-11', label: '2026年11月', month: 23},
+        {value: '2026-12', label: '2026年12月', month: 24}
+    ];
+
+    // 全局状态
+    let brandConfigs = JSON.parse(JSON.stringify(defaultBrandConfigs));
+    let carData = JSON.parse(JSON.stringify(defaultCarData));
+    let editingCarId = null;
+    let currentBrandIconType = 'text';
+    let currentBrandIcon = {type: 'text', value: '品', color: '#667eea', base64: null};
+    let isConfigLoaded = false;
+
+    // ============================================
+    // 初始化
+    // ============================================
+    function init() {
+        initEmojiGrid();
+        initTimeSelect();
+
+        // 尝试自动加载本地 config_car.json（如果在服务器环境下）
+        if (window.location.protocol !== 'file:') {
+            fetch('./config_car.json')
+                .then(response => {
+                    if (response.ok) return response.json();
+                    throw new Error('配置文件不存在');
+                })
+                .then(data => {
+                    applyConfigData(data, 'config_car.json');
+                })
+                .catch(err => {
+                    console.log('使用默认配置：', err.message);
+                });
+        }
+        refreshAll();
+
+    }
+
+    function initTimeSelect() {
+        const select = document.getElementById('carReleaseTime');
+        select.innerHTML = '';
+        timeOptions.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option.value;
+            opt.textContent = option.label;
+            select.appendChild(opt);
+        });
+    }
+
+    function initEmojiGrid() {
+        const grid = document.getElementById('emojiGrid');
+        grid.innerHTML = '';
+        emojiList.forEach(emoji => {
+            const div = document.createElement('div');
+            div.className = 'preset-icon';
+            div.textContent = emoji;
+            div.onclick = () => selectEmoji(emoji, div);
+            grid.appendChild(div);
+        });
+    }
+
+    // ============================================
+    // 配置文件加载功能
+    // ============================================
+    function loadConfigFile() {
+        document.getElementById('configFileInput').click();
+    }
+
+    function handleConfigFileLoad(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                applyConfigData(data, file.name);
+            } catch (err) {
+                alert('配置文件解析失败：' + err.message);
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    }
+
+    function applyConfigData(data, filename) {
+        if (data.brandConfigs && data.carData) {
+            brandConfigs = data.brandConfigs;
+            carData = data.carData.map(car => ({
+                ...car,
+                // 兼容性处理：如果旧数据使用 priceRange 作为显示，需要映射到 displayPrice
+                displayPrice: car.displayPrice || car.priceRange || '价格待定'
+            }));
+
+            isConfigLoaded = true;
+
+            // 显示配置信息
+            document.getElementById('configInfo').classList.add('show');
+            document.getElementById('configFileName').textContent = filename;
+            document.getElementById('configBrandCount').textContent = Object.keys(brandConfigs).length;
+            document.getElementById('configCarCount').textContent = carData.length;
+
+            refreshAll();
+            alert(`配置文件加载成功！\n包含 ${Object.keys(brandConfigs).length} 个品牌，${carData.length} 款车型`);
+        } else {
+            alert('配置文件格式错误：必须包含 brandConfigs 和 carData 字段');
+        }
+    }
+
+    // ============================================
+    // 核心刷新函数
+    // ============================================
+    function refreshAll() {
+        renderChart();
+        renderTable();
+        updateBrandSelect();
+        updateBrandFilter();
+        updateBrandList();
+        updateBrandFilterText(); // 新增此行
+    }
+
+    // ============================================
+    // 图表渲染
+    // ============================================
+    function renderChart() {
+        const svg = document.getElementById('chart');
+        const data = getFilteredData();
+
+        const margin = {top: 60, right: 200, bottom: 80, left: 100};
+        const width = 1200 - margin.left - margin.right;
+        const height = 800 - margin.top - margin.bottom;
+
+        svg.innerHTML = '';
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('transform', `translate(${margin.left},${margin.top})`);
+        svg.appendChild(g);
+
+        // 获取动态时间范围
+        const timeRange = getTimeRange();
+
+        // 动态计算价格范围（基于 priceMin/priceMax）
+        const allPrices = data.flatMap(d => [d.priceMin, d.priceMax]);
+        const minPrice = Math.floor(Math.min(...allPrices, 20) / 10) * 10;
+        const maxPrice = Math.ceil(Math.max(...allPrices, 70) / 10) * 10;
+        const priceScale = [];
+        for (let p = minPrice; p <= maxPrice; p += 10) {
+            priceScale.push(p);
+        }
+
+        const yScale = val => height - ((val - minPrice) / (maxPrice - minPrice)) * height;
+
+        // X轴比例尺
+        const xScale = val => {
+            const range = timeRange.max - timeRange.min + 1;
+            return ((val - timeRange.min) / (range - 1)) * width;
+        };
+
+        // 绘制网格线（Y轴 - 价格）
+        priceScale.forEach(price => {
+            const y = yScale(price);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', 0);
+            line.setAttribute('y1', y);
+            line.setAttribute('x2', width);
+            line.setAttribute('y2', y);
+            line.setAttribute('class', 'grid-line');
+            g.appendChild(line);
+
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', -15);
+            text.setAttribute('y', y + 4);
+            text.setAttribute('class', 'price-label');
+            text.textContent = price + '万';
+            g.appendChild(text);
+        });
+
+        // 绘制时间轴（X轴）
+        timeRange.options.forEach((option, i) => {
+            const x = xScale(option.month);
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x);
+            line.setAttribute('y1', 0);
+            line.setAttribute('x2', x);
+            line.setAttribute('y2', height);
+            line.setAttribute('class', 'grid-line');
+            line.setAttribute('stroke-dasharray', '2,2');
+            g.appendChild(line);
+
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', x);
+            text.setAttribute('y', height + 30);
+            text.setAttribute('class', 'month-label');
+
+            if (option.label.includes('2026年') && (i === 0 || !timeRange.options[i - 1].label.includes('2026年'))) {
+                text.textContent = '2026年';
+                text.setAttribute('font-weight', 'bold');
+                text.setAttribute('fill', '#e74c3c');
+
+                const yearText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                yearText.setAttribute('x', x);
+                yearText.setAttribute('y', height + 50);
+                yearText.setAttribute('class', 'month-label');
+                yearText.setAttribute('font-size', '11');
+                yearText.textContent = option.label.replace('2026年', '');
+                g.appendChild(yearText);
+            } else {
+                text.textContent = option.label.replace('2025年', '').replace('2026年', '');
+            }
+
+            g.appendChild(text);
+        });
+
+        // 坐标轴
+        const xAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        xAxis.setAttribute('x1', 0);
+        xAxis.setAttribute('y1', height);
+        xAxis.setAttribute('x2', width);
+        xAxis.setAttribute('y2', height);
+        xAxis.setAttribute('class', 'axis-line');
+        g.appendChild(xAxis);
+
+        const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        yAxis.setAttribute('x1', 0);
+        yAxis.setAttribute('y1', 0);
+        yAxis.setAttribute('x2', 0);
+        yAxis.setAttribute('y2', height);
+        yAxis.setAttribute('class', 'axis-line');
+        g.appendChild(yAxis);
+
+        // 高亮区域
+        const highlightStart = Math.max(timeRange.min, 10);
+        const highlightEnd = Math.min(timeRange.max, 16);
+
+
+        // 绘制数据点
+        data.forEach((car, index) => {
+            // 使用 priceMin 和 priceMax 的中值进行Y轴定位
+            const priceMid = (parseFloat(car.priceMin) + parseFloat(car.priceMax)) / 2;
+            const x = xScale(car.releaseMonth);
+            const y = yScale(priceMid);
+
+            // 防止重叠的偏移计算
+            let offsetX = 0;
+            let offsetY = 0;
+
+            const processedSameMonth = [];
+            for (let i = 0; i < index; i++) {
+                if (data[i].releaseMonth === car.releaseMonth) {
+                    processedSameMonth.push(data[i]);
+                }
+            }
+
+            const overlapCars = processedSameMonth.filter(c => {
+                const otherPriceMid = (parseFloat(c.priceMin) + parseFloat(c.priceMax)) / 2;
+                const priceDiff = Math.abs(priceMid - otherPriceMid);
+                return priceDiff < 8;
+            });
+
+            if (overlapCars.length > 0) {
+                const spacing = 60;
+                const direction = overlapCars.length % 2 === 0 ? 1 : -1;
+                const level = Math.ceil(overlapCars.length / 2);
+                offsetX = direction * level * spacing;
+                offsetY = (overlapCars.length % 2 === 0 ? 1 : -1) * 30;
+            }
+
+            const finalX = x + offsetX;
+            const finalY = y + offsetY;
+
+            const iconConfig = brandConfigs[car.brand] || {type: 'text', value: car.brand[0], color: '#667eea'};
+
+            // 图标组
+            const iconGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            iconGroup.setAttribute('class', 'data-point');
+            iconGroup.setAttribute('transform', `translate(${finalX}, ${finalY})`);
+            iconGroup.style.cursor = 'pointer';
+            iconGroup.addEventListener('mouseenter', (e) => showTooltip(e, car, iconConfig));
+            iconGroup.addEventListener('mouseleave', hideTooltip);
+            iconGroup.addEventListener('click', () => editCar(car.id));
+
+            // 背景圆
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('r', 27);
+            circle.setAttribute('fill', 'white');
+            circle.setAttribute('stroke', iconConfig.color);
+            circle.setAttribute('stroke-width', 2);
+            iconGroup.appendChild(circle);
+
+            // 图标内容
+            if (iconConfig.type === 'image' && iconConfig.base64) {
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                const clipId = 'clip-' + Math.random().toString(36).substr(2, 9);
+                const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+                clipPath.setAttribute('id', clipId);
+                const clipCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                clipCircle.setAttribute('r', 25);
+                clipPath.appendChild(clipCircle);
+                defs.appendChild(clipPath);
+                iconGroup.appendChild(defs);
+
+                const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                image.setAttribute('href', iconConfig.base64);
+                image.setAttribute('x', -30);
+                image.setAttribute('y', -30);
+                image.setAttribute('width', 60);
+                image.setAttribute('height', 60);
+                image.setAttribute('clip-path', `url(#${clipId})`);
+                image.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+
+                image.addEventListener('error', () => {
+                    image.style.display = 'none';
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('dy', '0.35em');
+                    text.setAttribute('font-size', '16');
+                    text.setAttribute('font-weight', 'bold');
+                    text.setAttribute('fill', iconConfig.color);
+                    text.textContent = car.brand[0];
+                    iconGroup.appendChild(text);
+                });
+
+                iconGroup.appendChild(image);
+            } else {
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dy', '0.35em');
+                text.setAttribute('font-size', '16');
+                text.setAttribute('font-weight', 'bold');
+                text.setAttribute('fill', iconConfig.color);
+                text.textContent = iconConfig.value || car.brand[0];
+                iconGroup.appendChild(text);
+            }
+
+            g.appendChild(iconGroup);
+
+            // 车型名称
+            const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            nameText.setAttribute('x', finalX);
+            nameText.setAttribute('y', finalY + 45);
+            nameText.setAttribute('text-anchor', 'middle');
+            nameText.setAttribute('class', 'car-name');
+            nameText.textContent = car.model;
+            g.appendChild(nameText);
+
+            // 图表显示价格（使用 displayPrice 字段）
+            const priceText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            priceText.setAttribute('x', finalX);
+            priceText.setAttribute('y', finalY - 32);
+            priceText.setAttribute('text-anchor', 'middle');
+            priceText.setAttribute('font-size', '18');
+            priceText.setAttribute('font-weight', 'bold');
+            priceText.setAttribute('fill', '#e74c3c');
+            // 优先使用 displayPrice，如果不存在则使用 priceMin-priceMax 的组合
+            const displayText = car.displayPrice || `${car.priceMin}-${car.priceMax}万`;
+            priceText.textContent = displayText;
+            g.appendChild(priceText);
+        });
+    }
+
+    function showTooltip(e, car, iconConfig) {
+        const tooltip = document.getElementById('tooltip');
+        const rect = e.target.getBoundingClientRect();
+        const containerRect = document.querySelector('.chart-container').getBoundingClientRect();
+
+        let iconHtml;
+        if (iconConfig.type === 'image' && iconConfig.base64) {
+            iconHtml = `<img src="${iconConfig.base64}" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:10px;" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block'"><span style="display:none;width:40px;height:40px;border-radius:50%;background:${iconConfig.color};color:white;text-align:center;line-height:40px;font-weight:bold;margin-right:10px;">${car.brand[0]}</span>`;
+        } else {
+            iconHtml = `<span style="display:inline-block;width:40px;height:40px;border-radius:50%;background:${iconConfig.color};color:white;text-align:center;line-height:40px;font-weight:bold;margin-right:10px;">${iconConfig.value}</span>`;
+        }
+
+        // 使用 displayPrice 显示价格
+        const priceDisplay = car.displayPrice || `${car.priceMin}-${car.priceMax}万元`;
+
+        tooltip.innerHTML = `
+            <div style="display:flex;align-items:center;margin-bottom:10px;">
+                ${iconHtml}
+                <strong style="font-size:16px;">${car.model}</strong>
+            </div>
+            <hr style="margin:8px 0;border-color:#444">
+            品牌：${car.brand}<br>
+            价格：${priceDisplay}<br>
+            类别：${car.category}<br>
+            时间：${car.notes}<br>
+            <hr style="margin:8px 0;border-color:#444">
+            <strong>核心亮点：</strong><br>
+            ${car.highlights}
+        `;
+
+        tooltip.style.left = (rect.left - containerRect.left + 40) + 'px';
+        tooltip.style.top = (rect.top - containerRect.top) + 'px';
+        tooltip.classList.add('show');
+    }
+
+    function hideTooltip() {
+        document.getElementById('tooltip').classList.remove('show');
+    }
+
+    // ============================================
+    // 数据工具函数
+    // ============================================
+    function getTimeRange() {
+        const months = carData.map(car => car.releaseMonth);
+        const minMonth = Math.min(...months, 13);
+        const maxMonth = Math.max(...months, 19);
+
+        const minOption = timeOptions.find(o => o.month >= minMonth) || timeOptions[0];
+        const maxOption = timeOptions.slice().reverse().find(o => o.month <= maxMonth) || timeOptions[timeOptions.length - 1];
+
+        return {
+            min: minOption.month,
+            max: maxOption.month,
+            options: timeOptions.filter(o => o.month >= minOption.month && o.month <= maxOption.month)
+        };
+    }
+
+    function getFilteredData() {
+        const priceFilter = document.getElementById('priceFilter').value;
+        const brandCheckboxes = document.querySelectorAll('#brandOptionsContainer input[type="checkbox"]:checked');
+        const selectedBrands = Array.from(brandCheckboxes).map(cb => cb.value);
+        const allChecked = document.getElementById('brand_all').checked;
+
+        return carData.filter(car => {
+            // Bug修复：将brandMatch判断移入filter内部，确保car变量可用
+            let brandMatch = allChecked || selectedBrands.length === 0 || selectedBrands.includes(car.brand);
+
+            let priceMatch = true;
+            if (priceFilter === '0-25') priceMatch = car.priceMax <= 25;
+            else if (priceFilter === '25-40') priceMatch = car.priceMin >= 25 && car.priceMax <= 40;
+            else if (priceFilter === '40-100') priceMatch = car.priceMin >= 40;
+            return priceMatch && brandMatch;
+        });
+    }
+
+    // ============================================
+    // 表格渲染
+    // ============================================
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        carData.forEach(car => {
+            const config = brandConfigs[car.brand];
+            const tr = document.createElement('tr');
+
+            let iconHtml;
+            if (config?.type === 'image' && config?.base64) {
+                iconHtml = `<div class="table-icon" style="background:white;"><img src="${config.base64}" onerror="this.style.display='none';this.parentElement.innerText='${config.value || car.brand[0]}';this.parentElement.style.background='${config.color}'"></div>`;
+            } else {
+                iconHtml = `<div class="table-icon" style="background:${config?.color || '#667eea'};">${config?.value || car.brand[0]}</div>`;
+            }
+
+            // 显示价格区间和图表显示价格
+            const priceRangeText = `${car.priceMin}-${car.priceMax}万`;
+            const displayPriceText = car.displayPrice || '-';
+
+            tr.innerHTML = `
+                <td>${iconHtml}
+                <td><strong style="color:${config?.color || '#333'}">${car.brand}</strong></td>
+                <td>${car.model}</td>
+                <td>${displayPriceText}</td>
+                <td>${priceRangeText}</td>
+                <td>${car.category}</td>
+                <td>${car.notes}</td>
+                <td class="action-btns">
+                    <button class="icon-btn edit-btn" onclick="event.stopPropagation();editCar(${car.id})">编辑</button>
+                    <button class="icon-btn delete-btn" onclick="event.stopPropagation();deleteCar(${car.id})">删除</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('totalCount').textContent = carData.length;
+    }
+
+    function updateBrandSelect() {
+        const select = document.getElementById('carBrand');
+        select.innerHTML = '<option value="">请选择品牌</option>';
+
+        Object.keys(brandConfigs).forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            select.appendChild(option);
+        });
+    }
+
+    function updateBrandFilter() {
+        const brands = Object.keys(brandConfigs);
+        const container = document.getElementById('brandOptionsContainer');
+        const allCheckbox = document.getElementById('brand_all');
+
+        // 保存当前选中状态
+        const currentChecked = Array.from(document.querySelectorAll('#brandOptionsContainer input[type="checkbox"]:checked')).map(cb => cb.value);
+
+        container.innerHTML = '';
+
+        brands.forEach(brand => {
+            const div = document.createElement('div');
+            div.className = 'multi-select-option';
+            div.onclick = function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const cb = this.querySelector('input');
+                    cb.checked = !cb.checked;
+                    refreshAll();
+                }
+            };
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = 'brand_' + brand;
+            checkbox.value = brand;
+            checkbox.onchange = function() {
+                // 如果选中具体品牌，取消"全部品牌"勾选
+                if (this.checked) {
+                    allCheckbox.checked = false;
+                } else if (!document.querySelector('#brandOptionsContainer input[type="checkbox"]:checked')) {
+                    allCheckbox.checked = true;
+                }
+                refreshAll();
+            };
+
+            // 恢复选中状态（默认全不选，依赖"全部品牌"）
+            if (currentChecked.includes(brand) && !allCheckbox.checked) {
+                checkbox.checked = true;
+            }
+
+            const label = document.createElement('label');
+            label.htmlFor = 'brand_' + brand;
+            label.textContent = brand;
+            label.onclick = function(e) { e.preventDefault(); };
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            container.appendChild(div);
+        });
+
+        updateBrandFilterText();
+    }
+
+    function updateBrandFilterText() {
+        const allCheckbox = document.getElementById('brand_all');
+        const checkedBoxes = document.querySelectorAll('#brandOptionsContainer input[type="checkbox"]:checked');
+        const textEl = document.getElementById('brandFilterText');
+
+        if (allCheckbox.checked || checkedBoxes.length === 0) {
+            textEl.textContent = '全部品牌';
+        } else if (checkedBoxes.length === 1) {
+            textEl.textContent = checkedBoxes[0].value;
+        } else {
+            textEl.textContent = `已选${checkedBoxes.length}个品牌`;
+        }
+    }
+
+    function toggleBrandDropdown() {
+        const dropdown = document.getElementById('brandDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    function toggleBrandCheckbox(value, event) {
+        if (event) event.stopPropagation();
+        const checkbox = document.getElementById('brand_' + value);
+        if (checkbox) {
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+                document.getElementById('brand_all').checked = false;
+            }
+            refreshAll();
+        } else if (value === 'all') {
+            // 勾选"全部品牌"时，取消其他所有选项
+            document.querySelectorAll('#brandOptionsContainer input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            refreshAll();
+        }
+    }
+
+    // 点击外部关闭下拉
+    document.addEventListener('click', function(e) {
+        const container = document.getElementById('brandFilterContainer');
+        if (!container.contains(e.target)) {
+            document.getElementById('brandDropdown').classList.remove('show');
+        }
+    });
+
+
+    function updateBrandPreview() {
+        const brand = document.getElementById('carBrand').value;
+        if (!brand) return;
+
+        const config = brandConfigs[brand];
+        const preview = document.getElementById('selectedBrandIcon');
+
+        if (config.type === 'image' && config.base64) {
+            preview.innerHTML = `<img src="${config.base64}" onerror="this.style.display='none';this.parentElement.innerHTML='<span>${brand[0]}</span>';this.parentElement.style.background='${config.color}'">`;
+            preview.style.background = 'white';
+        } else {
+            preview.innerHTML = `<span>${config.value}</span>`;
+            preview.style.background = config.color;
+        }
+    }
+
+    // ============================================
+    // 车型模态框操作
+    // ============================================
+    function openCarModal() {
+        editingCarId = null;
+        document.getElementById('carModalTitle').textContent = '添加新车';
+        document.getElementById('carForm').reset();
+        document.getElementById('editCarId').value = '';
+        document.getElementById('selectedBrandIcon').innerHTML = '<span>品</span>';
+        document.getElementById('selectedBrandIcon').style.background = '#667eea';
+        document.getElementById('carModal').classList.add('show');
+    }
+
+    function closeCarModal() {
+        document.getElementById('carModal').classList.remove('show');
+    }
+
+    function editCar(id) {
+        const car = carData.find(c => c.id === id);
+        if (!car) return;
+
+        editingCarId = id;
+        document.getElementById('carModalTitle').textContent = '编辑车型';
+        document.getElementById('editCarId').value = id;
+        document.getElementById('carBrand').value = car.brand;
+        document.getElementById('carModel').value = car.model;
+
+        // 填入价格区间（用于定位）
+        document.getElementById('priceMin').value = car.priceMin;
+        document.getElementById('priceMax').value = car.priceMax;
+
+        // 填入图表显示价格
+        document.getElementById('displayPrice').value = car.displayPrice || '';
+
+        document.getElementById('carCategory').value = car.category;
+        document.getElementById('carReleaseTime').value = car.releaseTime;
+        document.getElementById('carHighlights').value = car.highlights || '';
+        document.getElementById('carNotes').value = car.notes || '';
+
+        updateBrandPreview();
+        document.getElementById('carModal').classList.add('show');
+    }
+
+    function deleteCar(id) {
+        if (!confirm('确定要删除这个车型吗？')) return;
+        carData = carData.filter(c => c.id !== id);
+        refreshAll();
+    }
+
+    document.getElementById('carForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const brand = document.getElementById('carBrand').value;
+        if (!brand) {
+            alert('请选择品牌');
+            return;
+        }
+
+        const priceMin = parseFloat(document.getElementById('priceMin').value);
+        const priceMax = parseFloat(document.getElementById('priceMax').value);
+        const displayPrice = document.getElementById('displayPrice').value.trim();
+
+        if (priceMin >= priceMax) {
+            alert('价格区间最小值必须小于最大值');
+            return;
+        }
+
+        const releaseTime = document.getElementById('carReleaseTime').value;
+        const timeOption = timeOptions.find(o => o.value === releaseTime);
+
+        const car = {
+            id: editingCarId || Date.now(),
+            brand: brand,
+            model: document.getElementById('carModel').value,
+            priceMin: priceMin,
+            priceMax: priceMax,
+            displayPrice: displayPrice, // 专门用于展示的字段
+            category: document.getElementById('carCategory').value,
+            highlights: document.getElementById('carHighlights').value,
+            releaseTime: releaseTime,
+            releaseMonth: timeOption ? timeOption.month : 13,
+            status: 'upcoming',
+            notes: document.getElementById('carNotes').value
+        };
+
+        if (editingCarId) {
+            const index = carData.findIndex(c => c.id === editingCarId);
+            carData[index] = car;
+        } else {
+            carData.push(car);
+        }
+
+        closeCarModal();
+        refreshAll();
+    });
+
+    // ============================================
+    // 品牌配置模态框
+    // ============================================
+    function openBrandModal() {
+        document.getElementById('brandModal').classList.add('show');
+        updateBrandList();
+    }
+
+    function closeBrandModal() {
+        document.getElementById('brandModal').classList.remove('show');
+    }
+
+    function setBrandIconType(type) {
+        currentBrandIconType = type;
+        document.querySelectorAll('.icon-type-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        document.getElementById('brandIconTextSection').style.display = type === 'text' ? 'block' : 'none';
+        document.getElementById('brandIconEmojiSection').style.display = type === 'emoji' ? 'block' : 'none';
+        document.getElementById('brandIconImageSection').style.display = type === 'image' ? 'block' : 'none';
+
+        updateBrandIconPreview();
+    }
+
+    function selectEmoji(emoji, element) {
+        document.querySelectorAll('#emojiGrid .preset-icon').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('selectedEmoji').value = emoji;
+        currentBrandIcon.value = emoji;
+        updateBrandIconPreview();
+    }
+
+    function handleBrandLogoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.size > 500 * 1024) {
+            alert('图片大小不能超过500KB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById('brandLogoBase64').value = e.target.result;
+            currentBrandIcon.base64 = e.target.result;
+            currentBrandIcon.type = 'image';
+            updateBrandIconPreview();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updateBrandIconPreview() {
+        const preview = document.getElementById('brandIconPreview');
+        const color = document.getElementById('brandColor').value;
+
+        currentBrandIcon.color = color;
+
+        if (currentBrandIconType === 'image' && currentBrandIcon.base64) {
+            preview.innerHTML = `<img src="${currentBrandIcon.base64}">`;
+            preview.style.background = 'white';
+        } else if (currentBrandIconType === 'emoji') {
+            const emoji = document.getElementById('selectedEmoji').value;
+            preview.innerHTML = `<span>${emoji}</span>`;
+            preview.style.background = color;
+        } else {
+            const text = document.getElementById('brandIconText').value || '品';
+            preview.innerHTML = `<span>${text}</span>`;
+            preview.style.background = color;
+        }
+    }
+
+    document.getElementById('brandColor').addEventListener('input', updateBrandIconPreview);
+    document.getElementById('brandIconText').addEventListener('input', function () {
+        currentBrandIcon.value = this.value;
+        updateBrandIconPreview();
+    });
+
+    document.getElementById('brandForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById('newBrandName').value.trim();
+        if (!name) {
+            alert('请输入品牌名称');
+            return;
+        }
+
+        if (brandConfigs[name]) {
+            alert('该品牌已存在');
+            return;
+        }
+
+        const icon = {
+            type: currentBrandIconType === 'emoji' ? 'text' : currentBrandIconType,
+            value: currentBrandIconType === 'emoji' ? document.getElementById('selectedEmoji').value :
+                currentBrandIconType === 'image' ? '' : document.getElementById('brandIconText').value,
+            color: document.getElementById('brandColor').value,
+            base64: currentBrandIconType === 'image' ? document.getElementById('brandLogoBase64').value : null
+        };
+
+        brandConfigs[name] = icon;
+
+        document.getElementById('brandForm').reset();
+        currentBrandIcon = {type: 'text', value: '品', color: '#667eea', base64: null};
+        updateBrandIconPreview();
+
+        refreshAll();
+        alert(`品牌"${name}"添加成功！`);
+    });
+
+    function updateBrandList() {
+        const container = document.getElementById('brandList');
+        container.innerHTML = '';
+
+        Object.entries(brandConfigs).forEach(([name, config]) => {
+            const item = document.createElement('div');
+            item.className = 'brand-item';
+
+            let iconHtml;
+            if (config.type === 'image' && config.base64) {
+                iconHtml = `<div class="brand-item-icon" style="background:white;"><img src="${config.base64}" onerror="this.style.display='none';this.parentElement.innerText='${config.value || name[0]}';this.parentElement.style.background='${config.color}'"></div>`;
+            } else {
+                iconHtml = `<div class="brand-item-icon" style="background:${config.color};">${config.value}</div>`;
+            }
+
+            item.innerHTML = `
+                <div class="brand-item-info">
+                    ${iconHtml}
+                    <span style="font-weight:600;">${name}</span>
+                </div>
+                <button class="icon-btn delete-btn" onclick="deleteBrand('${name}')">删除</button>
+            `;
+
+            container.appendChild(item);
+        });
+    }
+
+    function deleteBrand(name) {
+        if (!confirm(`确定要删除品牌"${name}"吗？该品牌下的所有车型也会被删除。`)) return;
+
+        delete brandConfigs[name];
+        carData = carData.filter(c => c.brand !== name);
+
+        refreshAll();
+    }
+
+    // ============================================
+    // 数据导入导出
+    // ============================================
+    function downloadData() {
+        const exportData = {
+            brandConfigs: brandConfigs,
+            carData: carData,
+            exportTime: new Date().toISOString(),
+            version: '2.0'
+        };
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'car-release-config.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function loadFromFile() {
+        document.getElementById('fileInput').click();
+    }
+
+    function handleFileLoad(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const data = JSON.parse(e.target.result);
+
+                if (data.brandConfigs && data.carData) {
+                    brandConfigs = data.brandConfigs;
+                    carData = data.carData.map(car => ({
+                        ...car,
+                        displayPrice: car.displayPrice || car.priceRange || '价格待定'
+                    }));
+
+                    isConfigLoaded = true;
+                    document.getElementById('configInfo').classList.add('show');
+                    document.getElementById('configFileName').textContent = file.name;
+                    document.getElementById('configBrandCount').textContent = Object.keys(brandConfigs).length;
+                    document.getElementById('configCarCount').textContent = carData.length;
+
+                    refreshAll();
+                    alert(`导入成功！包含 ${Object.keys(brandConfigs).length} 个品牌，${carData.length} 款车型`);
+                } else {
+                    alert('数据格式错误');
+                }
+            } catch (err) {
+                alert('文件解析失败：' + err.message);
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    }
+
+    // 点击模态框外部关闭
+    document.getElementById('carModal').addEventListener('click', function (e) {
+        if (e.target === this) closeCarModal();
+    });
+
+    document.getElementById('brandModal').addEventListener('click', function (e) {
+        if (e.target === this) closeBrandModal();
+    });
+
+    // 初始化
+    init();
+</script>
+</body>
+</html>
