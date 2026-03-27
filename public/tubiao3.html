@@ -1336,9 +1336,6 @@
         event.target.value = '';
     }
 
-    // ============================================
-    // 新增：导出图表功能
-    // ============================================
     async function exportChart() {
         const toast = document.getElementById('exportToast');
         const btn = event.target;
@@ -1352,14 +1349,44 @@
             const captureArea = document.getElementById('chartCaptureArea');
             const img = document.getElementById('rightDetailImage');
 
-            // 检查是否需要等待图片加载
-            if (showRightImage && img.complete === false) {
-                await new Promise((resolve, reject) => {
+            // 【关键修复】预加载所有 SVG 中的图片并转换为 Base64，确保导出时可见
+            const svgImages = Array.from(document.querySelectorAll('svg image'));
+            await Promise.all(svgImages.map(imgEl => {
+                return new Promise((resolve) => {
+                    const src = imgEl.getAttribute('href') || imgEl.getAttribute('xlink:href');
+                    if (!src || src.startsWith('data:')) {
+                        resolve();
+                        return;
+                    }
+
+                    const image = new Image();
+                    image.crossOrigin = 'anonymous';
+                    image.onload = () => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = image.naturalWidth || 60;
+                            canvas.height = image.naturalHeight || 60;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(image, 0, 0);
+                            const dataUrl = canvas.toDataURL('image/png');
+                            imgEl.setAttribute('href', dataUrl);
+                        } catch (e) {
+                            console.warn('图片转换失败:', src);
+                        }
+                        resolve();
+                    };
+                    image.onerror = () => resolve();
+                    image.src = src;
+                    setTimeout(() => resolve(), 1000); // 超时保护
+                });
+            }));
+
+            // 检查右侧图片加载状态
+            if (showRightImage && img && !img.complete) {
+                await new Promise((resolve) => {
                     img.onload = resolve;
-                    img.onerror = reject;
-                    setTimeout(() => reject(new Error('图片加载超时')), 5000);
-                }).catch(() => {
-                    console.warn('配图加载未完成，将尝试使用占位符导出');
+                    img.onerror = resolve;
+                    setTimeout(() => resolve(), 5000);
                 });
             }
 
@@ -1367,10 +1394,10 @@
             const originalBg = captureArea.style.background;
             captureArea.style.background = '#ffffff';
 
-            // 使用html2canvas捕获
+            // 使用 html2canvas 捕获
             const canvas = await html2canvas(captureArea, {
                 backgroundColor: '#ffffff',
-                scale: 2, // 高清导出，2倍分辨率
+                scale: 2,
                 useCORS: true,
                 allowTaint: true,
                 logging: false,
