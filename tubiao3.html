@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2025-2026竞品新车发布计划 - 品牌配置版</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -92,7 +93,7 @@
             margin-top: 4px;
             max-height: 250px;
             overflow-y: auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 1000;
         }
 
@@ -143,6 +144,9 @@
             font-size: 14px;
             transition: all 0.3s;
             font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-primary {
@@ -162,9 +166,25 @@
             border: 1px solid #667eea;
         }
 
+        .btn-secondary:hover {
+            background: #f0f4ff;
+        }
+
+        .btn-secondary.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
         .btn-success {
             background: #27ae60;
             color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
         }
 
         .btn-warning {
@@ -200,15 +220,27 @@
 
         .chart-container {
             position: relative;
-            /*padding: 40px;*/
-            display: flex;          /* 横向排列 */
-            gap: 20px;              /* 图表与图片间距 */
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background: #fafbfc;
+            min-height: 800px;
         }
 
         .chart-wrapper {
             position: relative;
-            min-width: 800px;
-            height: 1000px;
+            flex: 1;
+            min-width: 0;
+            height: 900px;
+            overflow: visible;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* 图表单独模式（配图关闭时） */
+        .chart-wrapper.full-width {
+            width: 100%;
         }
 
         svg {
@@ -249,11 +281,11 @@
 
         .data-point {
             cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .data-point:hover {
-            transform: scale(1.05);
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s ease;
+            transform-origin: center center;
+            transform-box: fill-box;
+            pointer-events: all;
+            will-change: transform;
         }
 
         .car-logo {
@@ -278,7 +310,6 @@
             stroke: #e74c3c;
             stroke-width: 3;
             stroke-dasharray: 8, 4;
-            rx: 8;
         }
 
         .highlight-label {
@@ -298,7 +329,8 @@
             opacity: 0;
             transition: opacity 0.3s;
             max-width: 350px;
-            line-height: 1.5;
+            min-height: auto;
+            line-height: 1.6;
             z-index: 1000;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
@@ -433,24 +465,24 @@
         .data-table {
             margin-top: 30px;
             padding: 0 30px 30px;
-            display: flex;          /* 新增：Flex并排布局 */
-            gap: 30px;              /* 新增：间距 */
-            align-items: flex-start;/* 新增：顶部对齐 */
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
         }
 
         .table-wrapper {
-            flex: 1;                /* 表格区域自适应宽度 */
-            overflow-x: auto;       /* 表格可横向滚动 */
+            flex: 1;
+            overflow-x: auto;
         }
 
         .image-showcase {
-            width: 300px;           /* 图片区域固定宽度 */
+            width: 300px;
             background: white;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             border: 1px solid #e9ecef;
-            flex-shrink: 0;         /* 禁止压缩 */
+            flex-shrink: 0;
         }
 
         .image-showcase h4 {
@@ -729,6 +761,36 @@
             display: block;
         }
 
+        /* 右侧配图样式优化 */
+        .right-image-container {
+            flex-shrink: 0;
+            display: none; /* 默认隐藏 */
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .right-image-container.visible {
+            display: flex;
+        }
+
+        .right-image-container img {
+            height: 900px;
+            width: 400px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .image-upload-hint {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
         @media (max-width: 768px) {
             .controls {
                 flex-direction: column;
@@ -741,12 +803,61 @@
             }
 
             .chart-container {
-                padding: 20px;
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .right-image-container img {
+                width: 100%;
+                height: auto;
             }
 
             .brand-config-modal .preset-icons {
                 grid-template-columns: repeat(6, 1fr);
             }
+        }
+
+        #categorySelectContainer .multi-select-option:hover {
+            background: #f0f4ff;
+        }
+
+        #categoryDisplayText {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #333;
+        }
+
+        #categorySelectContainer .multi-select-trigger {
+            width: 100%;
+            min-height: 36px;
+        }
+
+        /* 导出提示样式 */
+        .export-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            z-index: 3000;
+            display: none;
+            pointer-events: none;
+        }
+
+        .export-toast.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
@@ -754,7 +865,7 @@
 <div class="container">
     <div class="header">
         <h1>2025-2026年竞品新车发布计划路线图</h1>
-        <div class="subtitle">品牌配置管理 | 配置文件加载 | 价格区间定位 + 显示价格展示</div>
+        <div class="subtitle">品牌配置管理 | 配置文件加载 | 价格区间定位 + 显示价格展示 | 图表导出功能</div>
     </div>
 
     <div class="controls">
@@ -762,11 +873,18 @@
         <button class="btn btn-warning" onclick="openBrandModal()">⚙️ 品牌配置</button>
         <button class="btn btn-info" onclick="loadConfigFile()">📂 加载配置</button>
         <button class="btn btn-success" onclick="downloadData()">💾 导出数据</button>
-        <button class="btn btn-secondary" onclick="changeRightImage()">📷 更换右侧图片</button>
+
+        <!-- 新增：展示配图开关按钮 -->
+        <button class="btn btn-secondary" id="toggleImageBtn" onclick="toggleRightImage()">📷 展示配图: 关</button>
+
+        <!-- 新增：导出图表按钮 -->
+        <button class="btn btn-success" onclick="exportChart()" style="background: #764ba2; border-color: #764ba2;">
+            📸 导出图表
+        </button>
+
         <input type="file" id="rightImageInput" style="display:none" accept="image/*" onchange="handleRightImageUpload(event)">
         <input type="file" id="fileInput" style="display:none" accept=".json" onchange="handleFileLoad(event)">
-        <input type="file" id="configFileInput" style="display:none" accept=".json"
-               onchange="handleConfigFileLoad(event)">
+        <input type="file" id="configFileInput" style="display:none" accept=".json" onchange="handleConfigFileLoad(event)">
 
         <div class="filter-group">
             <label>价格筛选：</label>
@@ -796,23 +914,24 @@
     </div>
 
     <div class="config-info" id="configInfo">
-        ✅ 已加载配置文件：<span id="configFileName"></span>（品牌：<span id="configBrandCount">0</span>个，车型：<span
-            id="configCarCount">0</span>个）
+        ✅ 已加载配置文件：<span id="configFileName"></span>（品牌：<span id="configBrandCount">0</span>个，车型：<span id="configCarCount">0</span>个）
     </div>
 
-    <div class="chart-container">
+    <div class="chart-container" id="chartCaptureArea">
         <!-- 左侧图表区域 -->
-        <div style="flex: 1; position: relative; ">
-            <div class="chart-wrapper">
-                <svg id="chart"></svg>
-            </div>
+        <div class="chart-wrapper" id="chartWrapper">
+            <svg id="chart"></svg>
             <div class="tooltip" id="tooltip"></div>
         </div>
 
-        <!-- 右侧图片：无背景色、无边框、无宽度限制，高度与图表一致 -->
-        <img id="rightDetailImage" src="./image/car/detail.png"
-             style="height: 750px;width: 500px;object-fit: fill; flex-shrink: 0; display: block;    margin-left: auto;"
-             onerror="this.style.display='none'">
+        <!-- 右侧配图区域：默认隐藏，受开关控制 -->
+        <div class="right-image-container" id="rightImageContainer">
+            <img id="rightDetailImage" src="./image/car/detail.png" alt="车型详情配图" onerror="handleImageError(this)">
+            <div class="image-upload-hint">
+                提示：点击图片区域可更换配图<br>
+                支持 JPG、PNG 格式
+            </div>
+        </div>
     </div>
 
     <div class="data-table">
@@ -827,6 +946,7 @@
                     <th>图表显示价格</th>
                     <th>价格区间（定位）</th>
                     <th>类别</th>
+                    <th>车长/轴距</th>
                     <th>发布时间</th>
                     <th>操作</th>
                 </tr>
@@ -834,10 +954,11 @@
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
-
-
     </div>
 </div>
+
+<!-- 导出提示 -->
+<div class="export-toast" id="exportToast">正在导出图表，请稍候...</div>
 
 <!-- 车型编辑模态框 -->
 <div class="modal" id="carModal">
@@ -865,6 +986,17 @@
             <div class="form-group">
                 <label>车型名称 <span style="color:#e74c3c">*</span></label>
                 <input type="text" id="carModel" required placeholder="如：D19">
+            </div>
+            <div class="form-group">
+                <label>车长</label>
+                <input type="text" id="carLength" placeholder="如：~5200mm 或 5365">
+                <div class="help-text">支持文本格式，如：~5200、5365mm、>5200等</div>
+            </div>
+
+            <div class="form-group">
+                <label>轴距</label>
+                <input type="text" id="carWheelbase" placeholder="如：~3100mm 或 3250">
+                <div class="help-text">支持文本格式，如：~3100、3250mm、>3100等</div>
             </div>
 
             <div class="form-group">
@@ -953,8 +1085,7 @@
                 <div id="brandIconImageSection" style="display:none;">
                     <label>上传品牌Logo</label>
                     <div class="upload-area" onclick="document.getElementById('brandLogoUpload').click()">
-                        <input type="file" id="brandLogoUpload" accept="image/*"
-                               onchange="handleBrandLogoUpload(event)">
+                        <input type="file" id="brandLogoUpload" accept="image/*" onchange="handleBrandLogoUpload(event)">
                         <p>点击上传图片（建议正方形，不超过500KB）</p>
                         <small style="color:#999">支持 PNG, JPG, SVG</small>
                     </div>
@@ -1005,13 +1136,15 @@
             "displayPrice": "23-30万元",
             "priceMin": 23,
             "priceMax": 30,
-            "category": "增程/纯电大型SUV",
-            "highlights": "全球首搭双高通8797芯片(1280TOPS算力)、LEAP 4.0架构...",
+            "category": "增程式/纯电动/大型车/SUV",
+            "length": 5200,
+            "wheelbase": 3100,
+            "highlights": "全球首搭双高通8797芯片...",
             "releaseTime": "2026-05",
             "releaseMonth": 17,
             "status": "upcoming",
             "notes": "2026年上半年上市"
-        },
+        }
     ];
 
     // Emoji列表
@@ -1038,7 +1171,8 @@
     let currentBrandIconType = 'text';
     let currentBrandIcon = {type: 'text', value: '品', color: '#667eea', base64: null};
     let isConfigLoaded = false;
-    let rightImageBase64 = null; // 存储右侧图片的base64数据
+    let rightImageBase64 = null;
+    let showRightImage = false; // 新增：配图显示状态，默认关闭
 
     // ============================================
     // 初始化
@@ -1047,7 +1181,11 @@
         initEmojiGrid();
         initTimeSelect();
 
-        // 尝试自动加载本地 config_car.json（如果在服务器环境下）
+        // 初始化配图区域：默认隐藏
+        document.getElementById('rightImageContainer').classList.remove('visible');
+        document.getElementById('rightDetailImage').style.display = 'none';
+
+        // 尝试自动加载本地 config_car.json
         if (window.location.protocol !== 'file:') {
             fetch('./config_car.json')
                 .then(response => {
@@ -1061,8 +1199,11 @@
                     console.log('使用默认配置：', err.message);
                 });
         }
-        refreshAll();
 
+        // 绑定右侧图片点击上传事件
+        document.getElementById('rightDetailImage').addEventListener('click', changeRightImage);
+
+        refreshAll();
     }
 
     function initTimeSelect() {
@@ -1086,6 +1227,186 @@
             div.onclick = () => selectEmoji(emoji, div);
             grid.appendChild(div);
         });
+    }
+
+    // ============================================
+    // 新增：展示配图开关功能
+    // ============================================
+    function toggleRightImage() {
+        showRightImage = !showRightImage;
+        const container = document.getElementById('rightImageContainer');
+        const img = document.getElementById('rightDetailImage');
+        const btn = document.getElementById('toggleImageBtn');
+
+        if (showRightImage) {
+            container.classList.add('visible');
+            // 如果有base64图片则显示，否则尝试显示默认路径
+            if (rightImageBase64) {
+                img.src = rightImageBase64;
+                img.style.display = 'block';
+            } else {
+                img.style.display = 'block';
+            }
+            btn.textContent = '📷 展示配图: 开';
+            btn.classList.add('active');
+        } else {
+            container.classList.remove('visible');
+            img.style.display = 'none';
+            btn.textContent = '📷 展示配图: 关';
+            btn.classList.remove('active');
+        }
+
+        // 调整图表宽度适应
+        setTimeout(() => {
+            renderChart();
+        }, 100);
+    }
+
+    // 处理图片加载错误
+    function handleImageError(img) {
+        console.log('配图加载失败，显示占位符');
+        // 不隐藏元素，而是显示一个占位背景，提示用户上传
+        img.style.background = '#f0f0f0';
+        img.style.display = 'flex';
+        img.style.alignItems = 'center';
+        img.style.justifyContent = 'center';
+        img.style.color = '#999';
+        img.style.fontSize = '14px';
+
+        // 创建提示文本
+        const hint = document.createElement('div');
+        hint.innerHTML = '暂无配图<br><small>点击上传图片</small>';
+        hint.style.textAlign = 'center';
+        hint.style.lineHeight = '1.5';
+
+        // 清空当前内容并添加提示（仅当没有子元素时）
+        if (!img.querySelector('div')) {
+            img.innerHTML = '';
+            img.appendChild(hint);
+        }
+    }
+
+    // 修复并优化更换图片功能
+    function changeRightImage() {
+        // 如果当前配图未显示，先提示用户开启开关
+        if (!showRightImage) {
+            const shouldOpen = confirm('配图展示当前为关闭状态，是否先开启配图展示？\n\n点击"确定"开启配图展示并上传图片\n点击"取消"仅上传图片（保持关闭状态）');
+            if (shouldOpen) {
+                toggleRightImage();
+            }
+        }
+        document.getElementById('rightImageInput').click();
+    }
+
+    function handleRightImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // 检查文件大小（限制5MB）
+        if (file.size > 5 * 1024 * 1024) {
+            alert('图片大小不能超过5MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            rightImageBase64 = e.target.result;
+            const img = document.getElementById('rightDetailImage');
+
+            // 清除之前的错误处理样式
+            img.style.background = '';
+            img.style.display = 'block';
+            img.innerHTML = ''; // 清除可能的错误提示内容
+
+            img.src = rightImageBase64;
+
+            // 如果当前是显示状态，确保可见
+            if (showRightImage) {
+                img.style.display = 'block';
+            }
+
+            alert('配图上传成功！');
+        };
+        reader.onerror = function() {
+            alert('图片读取失败，请重试');
+        };
+        reader.readAsDataURL(file);
+
+        // 清空input以便重复选择同一文件
+        event.target.value = '';
+    }
+
+    // ============================================
+    // 新增：导出图表功能
+    // ============================================
+    async function exportChart() {
+        const toast = document.getElementById('exportToast');
+        const btn = event.target;
+        const originalText = btn.textContent;
+
+        try {
+            btn.textContent = '⏳ 导出中...';
+            btn.disabled = true;
+            toast.classList.add('show');
+
+            const captureArea = document.getElementById('chartCaptureArea');
+            const img = document.getElementById('rightDetailImage');
+
+            // 检查是否需要等待图片加载
+            if (showRightImage && img.complete === false) {
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                    setTimeout(() => reject(new Error('图片加载超时')), 5000);
+                }).catch(() => {
+                    console.warn('配图加载未完成，将尝试使用占位符导出');
+                });
+            }
+
+            // 临时优化导出样式
+            const originalBg = captureArea.style.background;
+            captureArea.style.background = '#ffffff';
+
+            // 使用html2canvas捕获
+            const canvas = await html2canvas(captureArea, {
+                backgroundColor: '#ffffff',
+                scale: 2, // 高清导出，2倍分辨率
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                windowWidth: captureArea.scrollWidth,
+                windowHeight: captureArea.scrollHeight
+            });
+
+            // 恢复原始样式
+            captureArea.style.background = originalBg;
+
+            // 生成文件名
+            const date = new Date().toLocaleDateString().replace(/\//g, '-');
+            const time = new Date().toLocaleTimeString().replace(/:/g, '-');
+            const filename = `竞品新车发布计划_${date}_${time}.png`;
+
+            // 下载图片
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast.textContent = '导出成功！';
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.textContent = '正在导出图表，请稍候...';
+            }, 2000);
+
+        } catch (err) {
+            console.error('导出失败:', err);
+            alert('导出失败: ' + err.message + '\n请确保图表已正确加载后重试');
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
     }
 
     // ============================================
@@ -1117,13 +1438,11 @@
             brandConfigs = data.brandConfigs;
             carData = data.carData.map(car => ({
                 ...car,
-                // 兼容性处理：如果旧数据使用 priceRange 作为显示，需要映射到 displayPrice
                 displayPrice: car.displayPrice || car.priceRange || '价格待定'
             }));
 
             isConfigLoaded = true;
 
-            // 显示配置信息
             document.getElementById('configInfo').classList.add('show');
             document.getElementById('configFileName').textContent = filename;
             document.getElementById('configBrandCount').textContent = Object.keys(brandConfigs).length;
@@ -1145,7 +1464,7 @@
         updateBrandSelect();
         updateBrandFilter();
         updateBrandList();
-        updateBrandFilterText(); // 新增此行
+        updateBrandFilterText();
     }
 
     // ============================================
@@ -1155,11 +1474,17 @@
         const svg = document.getElementById('chart');
         const data = getFilteredData();
 
-        const margin = {top: 60, right: 200, bottom: 80, left: 100};
-        const width = 1200 - margin.left - margin.right;
-        const height = 800 - margin.top - margin.bottom;
+        // 根据是否显示配图调整图表尺寸
+        const hasRightImage = showRightImage;
+        const margin = {top: 80, right: hasRightImage ? 50 : 250, bottom: 100, left: 120};
+
+        // 动态计算宽度：如果显示配图，图表宽度减小；否则使用更大宽度
+        const containerWidth = document.getElementById('chartWrapper').clientWidth;
+        const width = containerWidth - margin.left - margin.right;
+        const height = 900 - margin.top - margin.bottom;
 
         svg.innerHTML = '';
+        svg.setAttribute('viewBox', `0 0 ${containerWidth} 900`);
 
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         g.setAttribute('transform', `translate(${margin.left},${margin.top})`);
@@ -1168,7 +1493,7 @@
         // 获取动态时间范围
         const timeRange = getTimeRange();
 
-        // 动态计算价格范围（基于 priceMin/priceMax）
+        // 动态计算价格范围
         const allPrices = data.flatMap(d => [d.priceMin, d.priceMax]);
         const minPrice = Math.floor(Math.min(...allPrices, 20) / 10) * 10;
         const maxPrice = Math.ceil(Math.max(...allPrices, 70) / 10) * 10;
@@ -1258,14 +1583,8 @@
         yAxis.setAttribute('class', 'axis-line');
         g.appendChild(yAxis);
 
-        // 高亮区域
-        const highlightStart = Math.max(timeRange.min, 10);
-        const highlightEnd = Math.min(timeRange.max, 16);
-
-
         // 绘制数据点
         data.forEach((car, index) => {
-            // 使用 priceMin 和 priceMax 的中值进行Y轴定位
             const priceMid = (parseFloat(car.priceMin) + parseFloat(car.priceMax)) / 2;
             const x = xScale(car.releaseMonth);
             const y = yScale(priceMid);
@@ -1288,15 +1607,20 @@
             });
 
             if (overlapCars.length > 0) {
-                const spacing = 60;
+                const spacing = Math.min(100, width / (overlapCars.length + 2));
                 const direction = overlapCars.length % 2 === 0 ? 1 : -1;
                 const level = Math.ceil(overlapCars.length / 2);
                 offsetX = direction * level * spacing;
-                offsetY = (overlapCars.length % 2 === 0 ? 1 : -1) * 30;
+                offsetY = (overlapCars.length % 2 === 0 ? 1 : -1) * 40;
             }
 
-            const finalX = x + offsetX;
-            const finalY = y + offsetY;
+            let finalX = x + offsetX;
+            let finalY = y + offsetY;
+
+            // 边界限制
+            const iconRadius = 80;
+            finalX = Math.max(iconRadius, Math.min(width - iconRadius, finalX));
+            finalY = Math.max(iconRadius, Math.min(height - iconRadius, finalY));
 
             const iconConfig = brandConfigs[car.brand] || {type: 'text', value: car.brand[0], color: '#667eea'};
 
@@ -1305,8 +1629,53 @@
             iconGroup.setAttribute('class', 'data-point');
             iconGroup.setAttribute('transform', `translate(${finalX}, ${finalY})`);
             iconGroup.style.cursor = 'pointer';
-            iconGroup.addEventListener('mouseenter', (e) => showTooltip(e, car, iconConfig));
-            iconGroup.addEventListener('mouseleave', hideTooltip);
+
+            iconGroup.addEventListener('mouseenter', function(e) {
+                const circle = this.querySelector('circle');
+                const text = this.querySelector('text');
+                const image = this.querySelector('image');
+
+                if (circle) {
+                    circle.setAttribute('r', 33);
+                    circle.setAttribute('stroke-width', 3);
+                }
+                if (text) {
+                    text.setAttribute('font-size', '20');
+                }
+                if (image) {
+                    image.setAttribute('width', 72);
+                    image.setAttribute('height', 72);
+                    image.setAttribute('x', -36);
+                    image.setAttribute('y', -36);
+                }
+
+                this.style.filter = 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))';
+                showTooltip(e, car, iconConfig);
+            });
+
+            iconGroup.addEventListener('mouseleave', function(e) {
+                const circle = this.querySelector('circle');
+                const text = this.querySelector('text');
+                const image = this.querySelector('image');
+
+                if (circle) {
+                    circle.setAttribute('r', 27);
+                    circle.setAttribute('stroke-width', 2);
+                }
+                if (text) {
+                    text.setAttribute('font-size', '16');
+                }
+                if (image) {
+                    image.setAttribute('width', 60);
+                    image.setAttribute('height', 60);
+                    image.setAttribute('x', -30);
+                    image.setAttribute('y', -30);
+                }
+
+                this.style.filter = 'none';
+                hideTooltip();
+            });
+
             iconGroup.addEventListener('click', () => editCar(car.id));
 
             // 背景圆
@@ -1373,7 +1742,54 @@
             nameText.textContent = car.model;
             g.appendChild(nameText);
 
-            // 图表显示价格（使用 displayPrice 字段）
+            // 车型类别
+            const categoryText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            categoryText.setAttribute('x', finalX);
+            categoryText.setAttribute('y', finalY + 60);
+            categoryText.setAttribute('text-anchor', 'middle');
+            categoryText.setAttribute('font-size', '10');
+            categoryText.setAttribute('fill', '#888');
+            categoryText.textContent = car.category;
+            g.appendChild(categoryText);
+
+            // 车长和轴距显示
+            if (car.length || car.wheelbase) {
+                const dimensionText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                dimensionText.setAttribute('x', finalX);
+                dimensionText.setAttribute('y', finalY + 75);
+                dimensionText.setAttribute('text-anchor', 'middle');
+                dimensionText.setAttribute('font-size', '10');
+                dimensionText.setAttribute('fill', '#667eea');
+                dimensionText.setAttribute('font-weight', '500');
+
+                let lengthStr = car.length || '-';
+                let wheelbaseStr = car.wheelbase || '-';
+
+                if (lengthStr && !lengthStr.includes('mm') && !isNaN(lengthStr)) {
+                    lengthStr = lengthStr + '车长';
+                } else if (lengthStr && lengthStr.includes('mm')) {
+                    lengthStr = lengthStr.replace('mm', '') + '车长';
+                } else if (lengthStr && lengthStr !== '-') {
+                    lengthStr = lengthStr + '车长';
+                } else {
+                    lengthStr = '-车长';
+                }
+
+                if (wheelbaseStr && !wheelbaseStr.includes('mm') && !isNaN(wheelbaseStr)) {
+                    wheelbaseStr = wheelbaseStr + '轴距';
+                } else if (wheelbaseStr && wheelbaseStr.includes('mm')) {
+                    wheelbaseStr = wheelbaseStr.replace('mm', '') + '轴距';
+                } else if (wheelbaseStr && wheelbaseStr !== '-') {
+                    wheelbaseStr = wheelbaseStr + '轴距';
+                } else {
+                    wheelbaseStr = '-轴距';
+                }
+
+                dimensionText.textContent = `${lengthStr}/${wheelbaseStr}`;
+                g.appendChild(dimensionText);
+            }
+
+            // 图表显示价格
             const priceText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             priceText.setAttribute('x', finalX);
             priceText.setAttribute('y', finalY - 32);
@@ -1381,7 +1797,6 @@
             priceText.setAttribute('font-size', '18');
             priceText.setAttribute('font-weight', 'bold');
             priceText.setAttribute('fill', '#e74c3c');
-            // 优先使用 displayPrice，如果不存在则使用 priceMin-priceMax 的组合
             const displayText = car.displayPrice || `${car.priceMin}-${car.priceMax}万`;
             priceText.textContent = displayText;
             g.appendChild(priceText);
@@ -1400,26 +1815,36 @@
             iconHtml = `<span style="display:inline-block;width:40px;height:40px;border-radius:50%;background:${iconConfig.color};color:white;text-align:center;line-height:40px;font-weight:bold;margin-right:10px;">${iconConfig.value}</span>`;
         }
 
-        // 使用 displayPrice 显示价格
         const priceDisplay = car.displayPrice || `${car.priceMin}-${car.priceMax}万元`;
 
-        tooltip.innerHTML = `
-            <div style="display:flex;align-items:center;margin-bottom:10px;">
-                ${iconHtml}
-                <strong style="font-size:16px;">${car.model}</strong>
-            </div>
-            <hr style="margin:8px 0;border-color:#444">
-            品牌：${car.brand}<br>
-            价格：${priceDisplay}<br>
-            类别：${car.category}<br>
-            时间：${car.notes}<br>
-            <hr style="margin:8px 0;border-color:#444">
-            <strong>核心亮点：</strong><br>
-            ${car.highlights}
-        `;
+        let dimensionInfo = '';
+        if (car.length || car.wheelbase) {
+            const parts = [];
+            if (car.length) parts.push(`车长${car.length}mm`);
+            if (car.wheelbase) parts.push(`轴距${car.wheelbase}mm`);
+            dimensionInfo = `<br>${parts.join(' / ')}`;
+        }
 
-        tooltip.style.left = (rect.left - containerRect.left + 40) + 'px';
-        tooltip.style.top = (rect.top - containerRect.top) + 'px';
+        tooltip.innerHTML = `<div style="display:flex;align-items:center;margin-bottom:10px;">
+                                    ${iconHtml}
+                                    <strong style="font-size:16px;">${car.model}</strong>
+                                </div>
+                                <hr style="margin:8px 0;border-color:#444">
+                                品牌：${car.brand}<br>
+                                价格：${priceDisplay}<br>
+                                类别：${car.category}${dimensionInfo}<br>
+                                时间：${car.notes}<br>
+                                <hr style="margin:8px 0;border-color:#444">
+                                <strong>核心亮点：</strong><br>
+                                ${car.highlights}
+                            </>`;
+
+        // 计算tooltip位置，防止溢出
+        let left = rect.left - containerRect.left + 40;
+        let top = rect.top - containerRect.top;
+
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
         tooltip.classList.add('show');
     }
 
@@ -1452,7 +1877,6 @@
         const allChecked = document.getElementById('brand_all').checked;
 
         return carData.filter(car => {
-            // Bug修复：将brandMatch判断移入filter内部，确保car变量可用
             let brandMatch = allChecked || selectedBrands.length === 0 || selectedBrands.includes(car.brand);
 
             let priceMatch = true;
@@ -1481,23 +1905,30 @@
                 iconHtml = `<div class="table-icon" style="background:${config?.color || '#667eea'};">${config?.value || car.brand[0]}</div>`;
             }
 
-            // 显示价格区间和图表显示价格
             const priceRangeText = `${car.priceMin}-${car.priceMax}万`;
             const displayPriceText = car.displayPrice || '-';
 
-            tr.innerHTML = `
-                <td>${iconHtml}
-                <td><strong style="color:${config?.color || '#333'}">${car.brand}</strong></td>
-                <td>${car.model}</td>
-                <td>${displayPriceText}</td>
-                <td>${priceRangeText}</td>
-                <td>${car.category}</td>
-                <td>${car.notes}</td>
-                <td class="action-btns">
-                    <button class="icon-btn edit-btn" onclick="event.stopPropagation();editCar(${car.id})">编辑</button>
-                    <button class="icon-btn delete-btn" onclick="event.stopPropagation();deleteCar(${car.id})">删除</button>
-                </td>
-            `;
+            let dimensionDisplay = '-';
+            if (car.length && car.wheelbase) {
+                dimensionDisplay = `${car.length}/${car.wheelbase}`;
+            } else if (car.length) {
+                dimensionDisplay = `${car.length}/-`;
+            } else if (car.wheelbase) {
+                dimensionDisplay = `-${car.wheelbase}`;
+            }
+
+            tr.innerHTML = `<td>${iconHtml}</td>
+                            <td><strong style="color:${config?.color || '#333'}">${car.brand}</strong></td>
+                            <td>${car.model}</td>
+                            <td>${displayPriceText}</td>
+                            <td>${priceRangeText}</td>
+                            <td>${car.category}</td>
+                            <td>${dimensionDisplay}</td>
+                            <td>${car.notes}</td>
+                            <td class="action-btns">
+                                <button class="icon-btn edit-btn" onclick="event.stopPropagation();editCar(${car.id})">编辑</button>
+                                <button class="icon-btn delete-btn" onclick="event.stopPropagation();deleteCar(${car.id})">删除</button>
+                            </td>`;
             tbody.appendChild(tr);
         });
 
@@ -1521,7 +1952,6 @@
         const container = document.getElementById('brandOptionsContainer');
         const allCheckbox = document.getElementById('brand_all');
 
-        // 保存当前选中状态
         const currentChecked = Array.from(document.querySelectorAll('#brandOptionsContainer input[type="checkbox"]:checked')).map(cb => cb.value);
 
         container.innerHTML = '';
@@ -1529,7 +1959,7 @@
         brands.forEach(brand => {
             const div = document.createElement('div');
             div.className = 'multi-select-option';
-            div.onclick = function(e) {
+            div.onclick = function (e) {
                 if (e.target.tagName !== 'INPUT') {
                     const cb = this.querySelector('input');
                     cb.checked = !cb.checked;
@@ -1541,8 +1971,7 @@
             checkbox.type = 'checkbox';
             checkbox.id = 'brand_' + brand;
             checkbox.value = brand;
-            checkbox.onchange = function() {
-                // 如果选中具体品牌，取消"全部品牌"勾选
+            checkbox.onchange = function () {
                 if (this.checked) {
                     allCheckbox.checked = false;
                 } else if (!document.querySelector('#brandOptionsContainer input[type="checkbox"]:checked')) {
@@ -1551,7 +1980,6 @@
                 refreshAll();
             };
 
-            // 恢复选中状态（默认全不选，依赖"全部品牌"）
             if (currentChecked.includes(brand) && !allCheckbox.checked) {
                 checkbox.checked = true;
             }
@@ -1559,7 +1987,9 @@
             const label = document.createElement('label');
             label.htmlFor = 'brand_' + brand;
             label.textContent = brand;
-            label.onclick = function(e) { e.preventDefault(); };
+            label.onclick = function (e) {
+                e.preventDefault();
+            };
 
             div.appendChild(checkbox);
             div.appendChild(label);
@@ -1598,7 +2028,6 @@
             }
             refreshAll();
         } else if (value === 'all') {
-            // 勾选"全部品牌"时，取消其他所有选项
             document.querySelectorAll('#brandOptionsContainer input[type="checkbox"]').forEach(cb => {
                 cb.checked = false;
             });
@@ -1606,14 +2035,12 @@
         }
     }
 
-    // 点击外部关闭下拉
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         const container = document.getElementById('brandFilterContainer');
         if (!container.contains(e.target)) {
             document.getElementById('brandDropdown').classList.remove('show');
         }
     });
-
 
     function updateBrandPreview() {
         const brand = document.getElementById('carBrand').value;
@@ -1657,14 +2084,11 @@
         document.getElementById('editCarId').value = id;
         document.getElementById('carBrand').value = car.brand;
         document.getElementById('carModel').value = car.model;
-
-        // 填入价格区间（用于定位）
+        document.getElementById('carLength').value = car.length || '';
+        document.getElementById('carWheelbase').value = car.wheelbase || '';
         document.getElementById('priceMin').value = car.priceMin;
         document.getElementById('priceMax').value = car.priceMax;
-
-        // 填入图表显示价格
         document.getElementById('displayPrice').value = car.displayPrice || '';
-
         document.getElementById('carCategory').value = car.category;
         document.getElementById('carReleaseTime').value = car.releaseTime;
         document.getElementById('carHighlights').value = car.highlights || '';
@@ -1707,8 +2131,10 @@
             model: document.getElementById('carModel').value,
             priceMin: priceMin,
             priceMax: priceMax,
-            displayPrice: displayPrice, // 专门用于展示的字段
+            displayPrice: displayPrice,
             category: document.getElementById('carCategory').value,
+            length: document.getElementById('carLength').value.trim() || null,
+            wheelbase: document.getElementById('carWheelbase').value.trim() || null,
             highlights: document.getElementById('carHighlights').value,
             releaseTime: releaseTime,
             releaseMonth: timeOption ? timeOption.month : 13,
@@ -1879,6 +2305,7 @@
         const exportData = {
             brandConfigs: brandConfigs,
             carData: carData,
+            rightImageBase64: rightImageBase64, // 同时导出配图
             exportTime: new Date().toISOString(),
             version: '2.0'
         };
@@ -1913,6 +2340,12 @@
                         displayPrice: car.displayPrice || car.priceRange || '价格待定'
                     }));
 
+                    // 恢复配图（如果存在）
+                    if (data.rightImageBase64) {
+                        rightImageBase64 = data.rightImageBase64;
+                        document.getElementById('rightDetailImage').src = rightImageBase64;
+                    }
+
                     isConfigLoaded = true;
                     document.getElementById('configInfo').classList.add('show');
                     document.getElementById('configFileName').textContent = file.name;
@@ -1931,24 +2364,7 @@
         reader.readAsText(file);
         event.target.value = '';
     }
-    function changeRightImage() {
-        document.getElementById('rightImageInput').click();
-    }
 
-    function handleRightImageUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        if (file.size > 2 * 1024 * 1024) {
-            alert('图片大小不能超过2MB...');
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            rightImageBase64 = e.target.result;
-            document.getElementById('rightDetailImage').src = rightImageBase64;
-        };
-        reader.readAsDataURL(file);
-    }
     // 点击模态框外部关闭
     document.getElementById('carModal').addEventListener('click', function (e) {
         if (e.target === this) closeCarModal();
