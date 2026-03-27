@@ -762,6 +762,8 @@
         <button class="btn btn-warning" onclick="openBrandModal()">⚙️ 品牌配置</button>
         <button class="btn btn-info" onclick="loadConfigFile()">📂 加载配置</button>
         <button class="btn btn-success" onclick="downloadData()">💾 导出数据</button>
+        <button class="btn btn-secondary" onclick="changeRightImage()">📷 更换右侧图片</button>
+        <input type="file" id="rightImageInput" style="display:none" accept="image/*" onchange="handleRightImageUpload(event)">
         <input type="file" id="fileInput" style="display:none" accept=".json" onchange="handleFileLoad(event)">
         <input type="file" id="configFileInput" style="display:none" accept=".json"
                onchange="handleConfigFileLoad(event)">
@@ -808,7 +810,7 @@
         </div>
 
         <!-- 右侧图片：无背景色、无边框、无宽度限制，高度与图表一致 -->
-        <img src="./image/car/detail.png"
+        <img id="rightDetailImage" src="./image/car/detail.png"
              style="height: 750px;width: 500px;object-fit: fill; flex-shrink: 0; display: block;    margin-left: auto;"
              onerror="this.style.display='none'">
     </div>
@@ -1036,6 +1038,7 @@
     let currentBrandIconType = 'text';
     let currentBrandIcon = {type: 'text', value: '品', color: '#667eea', base64: null};
     let isConfigLoaded = false;
+    let rightImageBase64 = null; // 存储右侧图片的base64数据
 
     // ============================================
     // 初始化
@@ -1928,7 +1931,24 @@
         reader.readAsText(file);
         event.target.value = '';
     }
+    function changeRightImage() {
+        document.getElementById('rightImageInput').click();
+    }
 
+    function handleRightImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+            alert('图片大小不能超过2MB...');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            rightImageBase64 = e.target.result;
+            document.getElementById('rightDetailImage').src = rightImageBase64;
+        };
+        reader.readAsDataURL(file);
+    }
     // 点击模态框外部关闭
     document.getElementById('carModal').addEventListener('click', function (e) {
         if (e.target === this) closeCarModal();
