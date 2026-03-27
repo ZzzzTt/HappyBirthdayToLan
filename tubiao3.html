@@ -1402,7 +1402,12 @@
                 allowTaint: true,
                 logging: false,
                 windowWidth: captureArea.scrollWidth,
-                windowHeight: captureArea.scrollHeight
+                windowHeight: captureArea.scrollHeight,
+                onclone: (clonedDoc) => {
+                    // 隐藏右侧配图下方的提示语
+                    const hint = clonedDoc.querySelector('.image-upload-hint');
+                    if (hint) hint.style.display = 'none';
+                }
             });
 
             // 恢复原始样式
