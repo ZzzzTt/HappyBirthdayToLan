@@ -870,6 +870,65 @@
         .data-point:active {
             cursor: grabbing;
         }
+        /* X轴配置模态框样式 */
+        .xaxis-year-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .xaxis-year-tab {
+            padding: 10px 24px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            user-select: none;
+        }
+        .xaxis-year-tab:hover {
+            color: #667eea;
+        }
+        .xaxis-year-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .xaxis-month-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .xaxis-month-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+        .xaxis-month-item:hover {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+        .xaxis-month-item.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .xaxis-month-item input[type="checkbox"] {
+            cursor: pointer;
+            width: 14px;
+            height: 14px;
+        }
+        .xaxis-month-item label {
+            cursor: pointer;
+            margin: 0;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -882,6 +941,7 @@
     <div class="controls">
         <button class="btn btn-primary" onclick="openCarModal()">+ 添加新车</button>
         <button class="btn btn-warning" onclick="openBrandModal()">⚙️ 品牌配置</button>
+        <button class="btn btn-info" onclick="openXAxisModal()">📅 X轴配置</button>
         <button class="btn btn-info" onclick="loadConfigFile()">📂 加载配置</button>
         <button class="btn btn-success" onclick="downloadData()">💾 导出数据</button>
 
@@ -1120,7 +1180,32 @@
         <div class="brand-list" id="brandList"></div>
     </div>
 </div>
+<!-- X轴时间配置模态框 -->
+<div class="modal" id="xAxisModal">
+    <div class="modal-content" style="max-width: 720px;">
+        <div class="modal-header">
+            <h3 class="modal-title">X轴时间区间配置</h3>
+            <button class="close-btn" onclick="closeXAxisModal()">&times;</button>
+        </div>
+        <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 13px; color: #666;">
+            提示：选中的月份将在X轴展示为 <strong>上旬</strong> 和 <strong>下旬</strong> 两个刻度。图表仅展示配置区间内的数据。
+        </div>
 
+        <div class="xaxis-year-tabs" id="xAxisYearTabs"></div>
+        <div class="xaxis-month-grid" id="xAxisMonthGrid"></div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-secondary" onclick="selectAllXAxisMonths(true)">全选当前年</button>
+                <button type="button" class="btn btn-secondary" onclick="selectAllXAxisMonths(false)">清空当前年</button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary" onclick="closeXAxisModal()" style="margin-right: 10px;">取消</button>
+                <button type="button" class="btn btn-primary" onclick="applyXAxisConfig()">确定并应用</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     // ============================================
     // 默认品牌配置（当没有配置文件时使用）
@@ -1151,7 +1236,7 @@
             "length": 5200,
             "wheelbase": 3100,
             "highlights": "全球首搭双高通8797芯片...",
-            "releaseTime": "2026-05",
+            "releaseTime": "2026-05-上旬",
             "releaseMonth": 17,
             "status": "upcoming",
             "notes": "2026年上半年上市"
@@ -1161,19 +1246,19 @@
     // Emoji列表
     const emojiList = ['🚗', '🚙', '🚕', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '⭐', '🔥', '💎', '⚡', '🔋', '🚀', '🛸', '✈️', '🚁', '🚂', '🦁', '🐯', '🐎', '🦅', '🐉', '🐲', '🦌', '🦈', '🐘', '🦏', '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '🟤'];
 
-    // 时间选项配置
-    const timeOptions = [
-        {value: '2026-03', label: '2026年3月', month: 15},
-        {value: '2026-04', label: '2026年4月', month: 16},
-        {value: '2026-05', label: '2026年5月', month: 17},
-        {value: '2026-06', label: '2026年6月', month: 18},
-        {value: '2026-07', label: '2026年7月', month: 19},
-        {value: '2026-08', label: '2026年8月', month: 20},
-        {value: '2026-09', label: '2026年9月', month: 21},
-        {value: '2026-10', label: '2026年10月', month: 22},
-        {value: '2026-11', label: '2026年11月', month: 23},
-        {value: '2026-12', label: '2026年12月', month: 24}
-    ];
+    // 基准年份定义（今年为基准）
+    const BASE_YEAR = 2026;
+    const LAST_YEAR = BASE_YEAR - 1;
+    const NEXT_YEAR = BASE_YEAR + 1;
+
+    // X轴配置
+    let xAxisConfig = {
+        selectedMonths: [] // 格式: ["2026-03", "2026-04", ...]
+    };
+    let activeTimeTicks = []; // 当前激活的旬刻度数组
+    let currentXAxisTabYear = BASE_YEAR;
+
+    // 旧 timeOptions 已废弃，X轴现在完全由 activeTimeTicks 驱动
 
     // 全局状态
     let brandConfigs = JSON.parse(JSON.stringify(defaultBrandConfigs));
@@ -1222,6 +1307,26 @@
         // 绑定右侧图片点击上传事件
         document.getElementById('rightDetailImage').addEventListener('click', changeRightImage);
 
+        // 初始化X轴时间配置
+        if (!xAxisConfig.selectedMonths || xAxisConfig.selectedMonths.length === 0) {
+            // 默认仅选中"当月"到"未来近2个月"（共3个月），自动处理跨年
+            xAxisConfig.selectedMonths = [];
+            const now = new Date();
+            const startYear = now.getFullYear();
+            const startMonth = now.getMonth() + 1; // 1-12
+
+            for (let i = 0; i < 3; i++) {
+                let y = startYear;
+                let m = startMonth + i;
+                if (m > 12) {
+                    m -= 12;
+                    y += 1;
+                }
+                xAxisConfig.selectedMonths.push(`${y}-${String(m).padStart(2, '0')}`);
+            }
+        }
+        generateActiveTimeTicks();
+
         refreshAll();
 
         // 绑定图表区拖拽事件
@@ -1229,15 +1334,138 @@
         chartSvg.addEventListener('mousemove', onDragMove);
         chartSvg.addEventListener('mouseup', endDrag);
         chartSvg.addEventListener('mouseleave', endDrag);
+        document.getElementById('xAxisModal').addEventListener('click', function (e) {
+            if (e.target === this) closeXAxisModal();
+        });
+    }
+    // ============================================
+    // X轴时间配置核心函数
+    // ============================================
+    function generateActiveTimeTicks() {
+        const ticks = [];
+        const sorted = [...xAxisConfig.selectedMonths].sort();
+        sorted.forEach(ym => {
+            const [year, month] = ym.split('-').map(Number);
+            ticks.push({
+                id: `${ym}-上旬`,
+                label: `${month}月上`,
+                fullLabel: `${year}年${month}月上旬`,
+                year, month, period: '上旬'
+            });
+            ticks.push({
+                id: `${ym}-下旬`,
+                label: `${month}月下`,
+                fullLabel: `${year}年${month}月下旬`,
+                year, month, period: '下旬'
+            });
+        });
+        activeTimeTicks = ticks;
     }
 
+    function openXAxisModal() {
+        currentXAxisTabYear = BASE_YEAR;
+        renderXAxisModal();
+        document.getElementById('xAxisModal').classList.add('show');
+    }
+
+    function closeXAxisModal() {
+        document.getElementById('xAxisModal').classList.remove('show');
+    }
+
+    function renderXAxisModal() {
+        const tabs = document.getElementById('xAxisYearTabs');
+        tabs.innerHTML = '';
+        [LAST_YEAR, BASE_YEAR, NEXT_YEAR].forEach(year => {
+            const tab = document.createElement('div');
+            tab.className = 'xaxis-year-tab' + (year === currentXAxisTabYear ? ' active' : '');
+            let label = year === BASE_YEAR ? `今年 (${year})` : (year < BASE_YEAR ? `去年 (${year})` : `明年 (${year})`);
+            tab.textContent = label;
+            tab.onclick = () => {
+                currentXAxisTabYear = year;
+                renderXAxisModal();
+            };
+            tabs.appendChild(tab);
+        });
+
+        const grid = document.getElementById('xAxisMonthGrid');
+        grid.innerHTML = '';
+        for (let m = 1; m <= 12; m++) {
+            const ym = `${currentXAxisTabYear}-${String(m).padStart(2, '0')}`;
+            const isSelected = xAxisConfig.selectedMonths.includes(ym);
+
+            const item = document.createElement('div');
+            item.className = 'xaxis-month-item' + (isSelected ? ' selected' : '');
+            item.innerHTML = `
+                <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleXAxisMonth('${ym}', this.checked)" onclick="event.stopPropagation()">
+                <label onclick="event.stopPropagation()">${m}月</label>
+            `;
+            item.onclick = () => {
+                const cb = item.querySelector('input');
+                cb.checked = !cb.checked;
+                toggleXAxisMonth(ym, cb.checked);
+                renderXAxisModal();
+            };
+            grid.appendChild(item);
+        }
+    }
+
+    function toggleXAxisMonth(ym, checked) {
+        if (checked) {
+            if (!xAxisConfig.selectedMonths.includes(ym)) {
+                xAxisConfig.selectedMonths.push(ym);
+            }
+        } else {
+            xAxisConfig.selectedMonths = xAxisConfig.selectedMonths.filter(m => m !== ym);
+        }
+    }
+
+    function selectAllXAxisMonths(select) {
+        for (let m = 1; m <= 12; m++) {
+            const ym = `${currentXAxisTabYear}-${String(m).padStart(2, '0')}`;
+            if (select) {
+                if (!xAxisConfig.selectedMonths.includes(ym)) xAxisConfig.selectedMonths.push(ym);
+            } else {
+                xAxisConfig.selectedMonths = xAxisConfig.selectedMonths.filter(m => m !== ym);
+            }
+        }
+        renderXAxisModal();
+    }
+
+    function applyXAxisConfig() {
+        if (xAxisConfig.selectedMonths.length === 0) {
+            alert('请至少选择一个月份');
+            return;
+        }
+        xAxisConfig.selectedMonths.sort();
+        generateActiveTimeTicks();
+        initTimeSelect();
+        refreshAll();
+        closeXAxisModal();
+        alert(`X轴已更新！共配置 ${xAxisConfig.selectedMonths.length} 个月，生成 ${activeTimeTicks.length} 个时间刻度。`);
+    }
+
+    function normalizeReleaseTime(rt) {
+        if (!rt) return activeTimeTicks[0]?.id || `${BASE_YEAR}-03-上旬`;
+        if (!rt.includes('旬')) return rt + '-上旬';
+        return rt;
+    }
     function initTimeSelect() {
         const select = document.getElementById('carReleaseTime');
-        select.innerHTML = '';
-        timeOptions.forEach(option => {
+        select.innerHTML = '<option value="">请选择发布时间</option>';
+
+        // 合并当前X轴刻度与已有数据中的时间，防止编辑时旧值丢失
+        const allTimes = new Map();
+        activeTimeTicks.forEach(tick => allTimes.set(tick.id, tick.fullLabel));
+        carData.forEach(car => {
+            if (car.releaseTime && !allTimes.has(car.releaseTime)) {
+                allTimes.set(car.releaseTime, car.releaseTime);
+            }
+        });
+
+        allTimes.forEach((label, id) => {
             const opt = document.createElement('option');
-            opt.value = option.value;
-            opt.textContent = option.label;
+            opt.value = id;
+            opt.textContent = label;
             select.appendChild(opt);
         });
     }
@@ -1493,20 +1721,28 @@
     function applyConfigData(data, filename) {
         if (data.brandConfigs && data.carData) {
             brandConfigs = data.brandConfigs;
+
+            // 加载 X轴配置（新增）
+            if (data.xAxisConfig && Array.isArray(data.xAxisConfig.selectedMonths)) {
+                xAxisConfig.selectedMonths = data.xAxisConfig.selectedMonths;
+            }
+            generateActiveTimeTicks();
+
             carData = data.carData.map(car => ({
                 ...car,
-                displayPrice: car.displayPrice || car.priceRange || '价格待定'
+                displayPrice: car.displayPrice || car.priceRange || '价格待定',
+                releaseTime: normalizeReleaseTime(car.releaseTime) // 兼容旧数据
             }));
 
             isConfigLoaded = true;
-
             document.getElementById('configInfo').classList.add('show');
             document.getElementById('configFileName').textContent = filename;
             document.getElementById('configBrandCount').textContent = Object.keys(brandConfigs).length;
             document.getElementById('configCarCount').textContent = carData.length;
 
+            initTimeSelect(); // 确保下拉框同步
             refreshAll();
-            alert(`配置文件加载成功！\n包含 ${Object.keys(brandConfigs).length} 个品牌，${carData.length} 款车型`);
+            alert(`配置文件加载成功！\n包含 ${Object.keys(brandConfigs).length} 个品牌，${carData.length} 款车型，${activeTimeTicks.length} 个时间刻度`);
         } else {
             alert('配置文件格式错误：必须包含 brandConfigs 和 carData 字段');
         }
@@ -1531,8 +1767,21 @@
         const svg = document.getElementById('chart');
         const data = getFilteredData();
 
+        if (activeTimeTicks.length === 0) {
+            svg.innerHTML = '';
+            const msg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            msg.setAttribute('x', '50%');
+            msg.setAttribute('y', '50%');
+            msg.setAttribute('text-anchor', 'middle');
+            msg.setAttribute('fill', '#999');
+            msg.setAttribute('font-size', '16');
+            msg.textContent = '请先通过"X轴配置"按钮设置时间区间';
+            svg.appendChild(msg);
+            return;
+        }
+
         const hasRightImage = showRightImage;
-        const margin = {top: 80, right: hasRightImage ? 50 : 250, bottom: 100, left: 120};
+        const margin = {top: 80, right: hasRightImage ? 50 : 250, bottom: 120, left: 120};
 
         const containerWidth = document.getElementById('chartWrapper').clientWidth;
         const width = containerWidth - margin.left - margin.right;
@@ -1545,238 +1794,179 @@
         g.setAttribute('transform', `translate(${margin.left},${margin.top})`);
         svg.appendChild(g);
 
-        const timeRange = getTimeRange();
-
+        // 动态计算价格范围
         const allPrices = data.flatMap(d => [d.priceMin, d.priceMax]);
         const minPrice = Math.floor(Math.min(...allPrices, 20) / 10) * 10;
         const maxPrice = Math.ceil(Math.max(...allPrices, 70) / 10) * 10;
         const priceScale = [];
-        for (let p = minPrice; p <= maxPrice; p += 10) {
-            priceScale.push(p);
-        }
+        for (let p = minPrice; p <= maxPrice; p += 10) priceScale.push(p);
 
         const yScale = val => height - ((val - minPrice) / (maxPrice - minPrice)) * height;
-        const xScale = val => {
-            const range = timeRange.max - timeRange.min + 1;
-            return ((val - timeRange.min) / (range - 1)) * width;
+        const xScale = tickIndex => {
+            if (activeTimeTicks.length <= 1) return width / 2;
+            return (tickIndex / (activeTimeTicks.length - 1)) * width;
         };
 
-        // 绘制网格线（Y轴 - 价格）
+        // Y轴网格线
         priceScale.forEach(price => {
             const y = yScale(price);
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', 0);
-            line.setAttribute('y1', y);
-            line.setAttribute('x2', width);
-            line.setAttribute('y2', y);
+            line.setAttribute('x1', 0); line.setAttribute('y1', y);
+            line.setAttribute('x2', width); line.setAttribute('y2', y);
             line.setAttribute('class', 'grid-line');
             g.appendChild(line);
 
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('x', -15);
-            text.setAttribute('y', y + 4);
+            text.setAttribute('x', -15); text.setAttribute('y', y + 4);
             text.setAttribute('class', 'price-label');
             text.textContent = price + '万';
             g.appendChild(text);
         });
 
-        // 绘制时间轴（X轴）
-        timeRange.options.forEach((option, i) => {
-            const x = xScale(option.month);
+        // X轴刻度与标签（上旬/下旬）
+        activeTimeTicks.forEach((tick, i) => {
+            const x = xScale(i);
 
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x);
-            line.setAttribute('y1', 0);
-            line.setAttribute('x2', x);
-            line.setAttribute('y2', height);
+            line.setAttribute('x1', x); line.setAttribute('y1', 0);
+            line.setAttribute('x2', x); line.setAttribute('y2', height);
             line.setAttribute('class', 'grid-line');
             line.setAttribute('stroke-dasharray', '2,2');
             g.appendChild(line);
 
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', x);
-            text.setAttribute('y', height + 30);
+            text.setAttribute('y', height + 22);
             text.setAttribute('class', 'month-label');
+            text.setAttribute('font-size', '11');
+            text.setAttribute('text-anchor', 'middle');
+            text.textContent = tick.label;
+            g.appendChild(text);
 
-            if (option.label.includes('2026年') && (i === 0 || !timeRange.options[i - 1].label.includes('2026年'))) {
-                text.textContent = '2026年';
-                text.setAttribute('font-weight', 'bold');
-                text.setAttribute('fill', '#e74c3c');
-
+            if (i === 0 || tick.year !== activeTimeTicks[i-1].year) {
                 const yearText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 yearText.setAttribute('x', x);
-                yearText.setAttribute('y', height + 50);
+                yearText.setAttribute('y', height + 42);
                 yearText.setAttribute('class', 'month-label');
-                yearText.setAttribute('font-size', '11');
-                yearText.textContent = option.label.replace('2026年', '');
+                yearText.setAttribute('font-weight', 'bold');
+                yearText.setAttribute('fill', '#e74c3c');
+                yearText.setAttribute('font-size', '13');
+                yearText.textContent = tick.year + '年';
                 g.appendChild(yearText);
-            } else {
-                text.textContent = option.label.replace('2025年', '').replace('2026年', '');
             }
-            g.appendChild(text);
         });
 
         // 坐标轴
         const xAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        xAxis.setAttribute('x1', 0);
-        xAxis.setAttribute('y1', height);
-        xAxis.setAttribute('x2', width);
-        xAxis.setAttribute('y2', height);
+        xAxis.setAttribute('x1', 0); xAxis.setAttribute('y1', height);
+        xAxis.setAttribute('x2', width); xAxis.setAttribute('y2', height);
         xAxis.setAttribute('class', 'axis-line');
         g.appendChild(xAxis);
 
         const yAxis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        yAxis.setAttribute('x1', 0);
-        yAxis.setAttribute('y1', 0);
-        yAxis.setAttribute('x2', 0);
-        yAxis.setAttribute('y2', height);
+        yAxis.setAttribute('x1', 0); yAxis.setAttribute('y1', 0);
+        yAxis.setAttribute('x2', 0); yAxis.setAttribute('y2', height);
         yAxis.setAttribute('class', 'axis-line');
         g.appendChild(yAxis);
 
         // 绘制数据点
         data.forEach((car, index) => {
+            const tickIndex = activeTimeTicks.findIndex(t => t.id === car.releaseTime);
+            if (tickIndex === -1) return; // 不在当前X轴区间，跳过
+
             const priceMid = (parseFloat(car.priceMin) + parseFloat(car.priceMax)) / 2;
-            const x = xScale(car.releaseMonth);
+            const x = xScale(tickIndex);
             const y = yScale(priceMid);
 
-            // 防止重叠的自动偏移
-            let autoOffsetX = 0;
-            let autoOffsetY = 0;
-            const processedSameMonth = [];
+            // 同一旬防重叠
+            let autoOffsetX = 0, autoOffsetY = 0;
+            const sameTickCars = [];
             for (let i = 0; i < index; i++) {
-                if (data[i].releaseMonth === car.releaseMonth) {
-                    processedSameMonth.push(data[i]);
-                }
+                if (data[i].releaseTime === car.releaseTime) sameTickCars.push(data[i]);
             }
-            const overlapCars = processedSameMonth.filter(c => {
-                const otherPriceMid = (parseFloat(c.priceMin) + parseFloat(c.priceMax)) / 2;
-                const priceDiff = Math.abs(priceMid - otherPriceMid);
-                return priceDiff < 8;
+            const overlapCars = sameTickCars.filter(c => {
+                const otherMid = (parseFloat(c.priceMin) + parseFloat(c.priceMax)) / 2;
+                return Math.abs(priceMid - otherMid) < 8;
             });
             if (overlapCars.length > 0) {
-                const spacing = Math.min(100, width / (overlapCars.length + 2));
+                const spacing = Math.min(80, width / (overlapCars.length + 2));
                 const direction = overlapCars.length % 2 === 0 ? 1 : -1;
                 const level = Math.ceil(overlapCars.length / 2);
                 autoOffsetX = direction * level * spacing;
                 autoOffsetY = (overlapCars.length % 2 === 0 ? 1 : -1) * 40;
             }
 
-            // 用户拖拽偏移
             const userOffsetX = car.dragOffsetX || 0;
             const userOffsetY = car.dragOffsetY || 0;
-
             let finalX = x + autoOffsetX + userOffsetX;
             let finalY = y + autoOffsetY + userOffsetY;
-
-            // 边界限制
             const iconRadius = 80;
             finalX = Math.max(iconRadius, Math.min(width - iconRadius, finalX));
             finalY = Math.max(iconRadius, Math.min(height - iconRadius, finalY));
 
             const iconConfig = brandConfigs[car.brand] || {type: 'text', value: car.brand[0], color: '#667eea'};
 
-            // 图标组（整组可拖拽）
             const iconGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             iconGroup.setAttribute('class', 'data-point');
             iconGroup.setAttribute('transform', `translate(${finalX}, ${finalY})`);
             iconGroup.style.cursor = 'pointer';
-
-            // 记录基准位置与自动偏移，供拖拽计算使用
             iconGroup.setAttribute('data-car-id', car.id);
             iconGroup.setAttribute('data-base-x', x);
             iconGroup.setAttribute('data-base-y', y);
             iconGroup.setAttribute('data-auto-x', autoOffsetX);
             iconGroup.setAttribute('data-auto-y', autoOffsetY);
 
-            // 鼠标悬停放大
             iconGroup.addEventListener('mouseenter', function(e) {
                 if (dragState.isDragging) return;
                 const circle = this.querySelector('circle');
                 const brandText = this.querySelector('.brand-icon-text');
                 const image = this.querySelector('image');
-                if (circle) {
-                    circle.setAttribute('r', 33);
-                    circle.setAttribute('stroke-width', 3);
-                }
-                if (brandText) {
-                    brandText.setAttribute('font-size', '20');
-                }
-                if (image) {
-                    image.setAttribute('width', 72);
-                    image.setAttribute('height', 72);
-                    image.setAttribute('x', -36);
-                    image.setAttribute('y', -36);
-                }
+                if (circle) { circle.setAttribute('r', 33); circle.setAttribute('stroke-width', 3); }
+                if (brandText) brandText.setAttribute('font-size', '20');
+                if (image) { image.setAttribute('width', 72); image.setAttribute('height', 72); image.setAttribute('x', -36); image.setAttribute('y', -36); }
                 this.style.filter = 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))';
                 showTooltip(e, car, iconConfig);
             });
-
             iconGroup.addEventListener('mouseleave', function(e) {
                 if (dragState.isDragging) return;
                 const circle = this.querySelector('circle');
                 const brandText = this.querySelector('.brand-icon-text');
                 const image = this.querySelector('image');
-                if (circle) {
-                    circle.setAttribute('r', 27);
-                    circle.setAttribute('stroke-width', 2);
-                }
-                if (brandText) {
-                    brandText.setAttribute('font-size', '16');
-                }
-                if (image) {
-                    image.setAttribute('width', 60);
-                    image.setAttribute('height', 60);
-                    image.setAttribute('x', -30);
-                    image.setAttribute('y', -30);
-                }
+                if (circle) { circle.setAttribute('r', 27); circle.setAttribute('stroke-width', 2); }
+                if (brandText) brandText.setAttribute('font-size', '16');
+                if (image) { image.setAttribute('width', 60); image.setAttribute('height', 60); image.setAttribute('x', -30); image.setAttribute('y', -30); }
                 this.style.filter = 'none';
                 hideTooltip();
             });
-
-            iconGroup.addEventListener('click', function(e) {
-                if (dragState.hasMoved) {
-                    dragState.hasMoved = false;
-                    return; // 拖拽后不打开编辑
-                }
+            iconGroup.addEventListener('click', function() {
+                if (dragState.hasMoved) { dragState.hasMoved = false; return; }
                 editCar(car.id);
             });
-
-            // 拖拽开始
             iconGroup.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+                e.preventDefault(); e.stopPropagation();
                 startDrag(e, car.id);
             });
 
-            // 背景圆
             const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('r', 27);
-            circle.setAttribute('fill', 'white');
-            circle.setAttribute('stroke', iconConfig.color);
-            circle.setAttribute('stroke-width', 2);
+            circle.setAttribute('r', 27); circle.setAttribute('fill', 'white');
+            circle.setAttribute('stroke', iconConfig.color); circle.setAttribute('stroke-width', 2);
             iconGroup.appendChild(circle);
 
-            // 图标内容
             if (iconConfig.type === 'image' && iconConfig.base64) {
                 const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
                 const clipId = 'clip-' + Math.random().toString(36).substr(2, 9);
                 const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
                 clipPath.setAttribute('id', clipId);
                 const clipCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                clipCircle.setAttribute('r', 25);
-                clipPath.appendChild(clipCircle);
-                defs.appendChild(clipPath);
-                iconGroup.appendChild(defs);
+                clipCircle.setAttribute('r', 25); clipPath.appendChild(clipCircle);
+                defs.appendChild(clipPath); iconGroup.appendChild(defs);
 
                 const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
                 image.setAttribute('href', iconConfig.base64);
-                image.setAttribute('x', -30);
-                image.setAttribute('y', -30);
-                image.setAttribute('width', 60);
-                image.setAttribute('height', 60);
+                image.setAttribute('x', -30); image.setAttribute('y', -30);
+                image.setAttribute('width', 60); image.setAttribute('height', 60);
                 image.setAttribute('clip-path', `url(#${clipId})`);
                 image.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-
                 image.addEventListener('error', () => {
                     image.style.display = 'none';
                     const fallbackText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -1789,88 +1979,59 @@
                     fallbackText.textContent = car.brand[0];
                     iconGroup.appendChild(fallbackText);
                 });
-
                 iconGroup.appendChild(image);
             } else {
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('dy', '0.35em');
-                text.setAttribute('font-size', '16');
-                text.setAttribute('font-weight', 'bold');
-                text.setAttribute('fill', iconConfig.color);
-                text.setAttribute('class', 'brand-icon-text');
+                text.setAttribute('text-anchor', 'middle'); text.setAttribute('dy', '0.35em');
+                text.setAttribute('font-size', '16'); text.setAttribute('font-weight', 'bold');
+                text.setAttribute('fill', iconConfig.color); text.setAttribute('class', 'brand-icon-text');
                 text.textContent = iconConfig.value || car.brand[0];
                 iconGroup.appendChild(text);
             }
 
-            // 车型名称（相对坐标，跟随整组）
             const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            nameText.setAttribute('x', 0);
-            nameText.setAttribute('y', 45);
-            nameText.setAttribute('text-anchor', 'middle');
-            nameText.setAttribute('class', 'car-name');
+            nameText.setAttribute('x', 0); nameText.setAttribute('y', 45);
+            nameText.setAttribute('text-anchor', 'middle'); nameText.setAttribute('class', 'car-name');
             nameText.textContent = car.model;
             iconGroup.appendChild(nameText);
 
-            // 车型类别
             const categoryText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            categoryText.setAttribute('x', 0);
-            categoryText.setAttribute('y', 60);
+            categoryText.setAttribute('x', 0); categoryText.setAttribute('y', 60);
             categoryText.setAttribute('text-anchor', 'middle');
-            categoryText.setAttribute('font-size', '10');
-            categoryText.setAttribute('fill', '#888');
+            categoryText.setAttribute('font-size', '10'); categoryText.setAttribute('fill', '#888');
             categoryText.textContent = car.category;
             iconGroup.appendChild(categoryText);
 
-            // 车长和轴距
-            // 车长和轴距
             if (car.length != null || car.wheelbase != null) {
                 const dimensionText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                dimensionText.setAttribute('x', 0);
-                dimensionText.setAttribute('y', 75);
+                dimensionText.setAttribute('x', 0); dimensionText.setAttribute('y', 75);
                 dimensionText.setAttribute('text-anchor', 'middle');
-                dimensionText.setAttribute('font-size', '10');
-                dimensionText.setAttribute('fill', '#667eea');
+                dimensionText.setAttribute('font-size', '10'); dimensionText.setAttribute('fill', '#667eea');
                 dimensionText.setAttribute('font-weight', '500');
 
-                // 强制转为字符串，避免数字类型没有 .includes() 方法
                 let lengthStr = car.length != null ? String(car.length) : '-';
                 let wheelbaseStr = car.wheelbase != null ? String(car.wheelbase) : '-';
 
-                if (lengthStr && !lengthStr.includes('mm') && !isNaN(lengthStr)) {
-                    lengthStr = lengthStr + '车长';
-                } else if (lengthStr && lengthStr.includes('mm')) {
-                    lengthStr = lengthStr.replace('mm', '') + '车长';
-                } else if (lengthStr && lengthStr !== '-') {
-                    lengthStr = lengthStr + '车长';
-                } else {
-                    lengthStr = '-车长';
-                }
+                if (lengthStr && !lengthStr.includes('mm') && !isNaN(lengthStr)) lengthStr += '车长';
+                else if (lengthStr && lengthStr.includes('mm')) lengthStr = lengthStr.replace('mm', '') + '车长';
+                else if (lengthStr && lengthStr !== '-') lengthStr += '车长';
+                else lengthStr = '-车长';
 
-                if (wheelbaseStr && !wheelbaseStr.includes('mm') && !isNaN(wheelbaseStr)) {
-                    wheelbaseStr = wheelbaseStr + '轴距';
-                } else if (wheelbaseStr && wheelbaseStr.includes('mm')) {
-                    wheelbaseStr = wheelbaseStr.replace('mm', '') + '轴距';
-                } else if (wheelbaseStr && wheelbaseStr !== '-') {
-                    wheelbaseStr = wheelbaseStr + '轴距';
-                } else {
-                    wheelbaseStr = '-轴距';
-                }
+                if (wheelbaseStr && !wheelbaseStr.includes('mm') && !isNaN(wheelbaseStr)) wheelbaseStr += '轴距';
+                else if (wheelbaseStr && wheelbaseStr.includes('mm')) wheelbaseStr = wheelbaseStr.replace('mm', '') + '轴距';
+                else if (wheelbaseStr && wheelbaseStr !== '-') wheelbaseStr += '轴距';
+                else wheelbaseStr = '-轴距';
 
                 dimensionText.textContent = `${lengthStr}/${wheelbaseStr}`;
                 iconGroup.appendChild(dimensionText);
             }
 
-            // 图表显示价格
             const priceText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            priceText.setAttribute('x', 0);
-            priceText.setAttribute('y', -32);
+            priceText.setAttribute('x', 0); priceText.setAttribute('y', -32);
             priceText.setAttribute('text-anchor', 'middle');
-            priceText.setAttribute('font-size', '18');
-            priceText.setAttribute('font-weight', 'bold');
+            priceText.setAttribute('font-size', '18'); priceText.setAttribute('font-weight', 'bold');
             priceText.setAttribute('fill', '#e74c3c');
-            const displayText = car.displayPrice || `${car.priceMin}-${car.priceMax}万`;
-            priceText.textContent = displayText;
+            priceText.textContent = car.displayPrice || `${car.priceMin}-${car.priceMax}万`;
             iconGroup.appendChild(priceText);
 
             g.appendChild(iconGroup);
@@ -1965,7 +2126,6 @@
     }
     function showTooltip(e, car, iconConfig) {
         if (dragState.isDragging) return;
-
         const tooltip = document.getElementById('tooltip');
         const rect = e.target.getBoundingClientRect();
         const containerRect = document.querySelector('.chart-container').getBoundingClientRect();
@@ -1977,6 +2137,8 @@
             iconHtml = `<span style="display:inline-block;width:40px;height:40px;border-radius:50%;background:${iconConfig.color};color:white;text-align:center;line-height:40px;font-weight:bold;margin-right:10px;">${iconConfig.value}</span>`;
         }
 
+        const tick = activeTimeTicks.find(t => t.id === car.releaseTime);
+        const timeLabel = tick ? tick.fullLabel : (car.releaseTime || '-');
         const priceDisplay = car.displayPrice || `${car.priceMin}-${car.priceMax}万元`;
 
         let dimensionInfo = '';
@@ -1995,16 +2157,14 @@
                                 品牌：${car.brand}<br>
                                 价格：${priceDisplay}<br>
                                 类别：${car.category}${dimensionInfo}<br>
-                                时间：${car.notes}<br>
+                                时间：${timeLabel}<br>
                                 <hr style="margin:8px 0;border-color:#444">
                                 <strong>核心亮点：</strong><br>
                                 ${car.highlights}
                             </>`;
 
-        // 计算tooltip位置，防止溢出
         let left = rect.left - containerRect.left + 40;
         let top = rect.top - containerRect.top;
-
         tooltip.style.left = left + 'px';
         tooltip.style.top = top + 'px';
         tooltip.classList.add('show');
@@ -2014,23 +2174,7 @@
         document.getElementById('tooltip').classList.remove('show');
     }
 
-    // ============================================
-    // 数据工具函数
-    // ============================================
-    function getTimeRange() {
-        const months = carData.map(car => car.releaseMonth);
-        const minMonth = Math.min(...months, 13);
-        const maxMonth = Math.max(...months, 19);
 
-        const minOption = timeOptions.find(o => o.month >= minMonth) || timeOptions[0];
-        const maxOption = timeOptions.slice().reverse().find(o => o.month <= maxMonth) || timeOptions[timeOptions.length - 1];
-
-        return {
-            min: minOption.month,
-            max: maxOption.month,
-            options: timeOptions.filter(o => o.month >= minOption.month && o.month <= maxOption.month)
-        };
-    }
 
     function getFilteredData() {
         const priceFilter = document.getElementById('priceFilter').value;
@@ -2059,7 +2203,8 @@
         carData.forEach(car => {
             const config = brandConfigs[car.brand];
             const tr = document.createElement('tr');
-
+            const timeTick = activeTimeTicks.find(t => t.id === car.releaseTime);
+            const timeStr = timeTick ? timeTick.fullLabel : (car.releaseTime || car.notes || '-');
             let iconHtml;
             if (config?.type === 'image' && config?.base64) {
                 iconHtml = `<div class="table-icon" style="background:white;"><img src="${config.base64}" onerror="this.style.display='none';this.parentElement.innerText='${config.value || car.brand[0]}';this.parentElement.style.background='${config.color}'"></div>`;
@@ -2086,7 +2231,7 @@
                             <td>${priceRangeText}</td>
                             <td>${car.category}</td>
                             <td>${dimensionDisplay}</td>
-                            <td>${car.notes}</td>
+                            <td>${timeStr}</td>
                             <td class="action-btns">
                                 <button class="icon-btn edit-btn" onclick="event.stopPropagation();editCar(${car.id})">编辑</button>
                                 <button class="icon-btn delete-btn" onclick="event.stopPropagation();deleteCar(${car.id})">删除</button>
@@ -2270,22 +2415,16 @@
         e.preventDefault();
 
         const brand = document.getElementById('carBrand').value;
-        if (!brand) {
-            alert('请选择品牌');
-            return;
-        }
+        if (!brand) { alert('请选择品牌'); return; }
 
         const priceMin = parseFloat(document.getElementById('priceMin').value);
         const priceMax = parseFloat(document.getElementById('priceMax').value);
         const displayPrice = document.getElementById('displayPrice').value.trim();
 
-        if (priceMin >= priceMax) {
-            alert('价格区间最小值必须小于最大值');
-            return;
-        }
+        if (priceMin >= priceMax) { alert('价格区间最小值必须小于最大值'); return; }
 
         const releaseTime = document.getElementById('carReleaseTime').value;
-        const timeOption = timeOptions.find(o => o.value === releaseTime);
+        if (!releaseTime) { alert('请选择发布时间'); return; }
 
         const car = {
             id: editingCarId || Date.now(),
@@ -2299,7 +2438,6 @@
             wheelbase: document.getElementById('carWheelbase').value.trim() || null,
             highlights: document.getElementById('carHighlights').value,
             releaseTime: releaseTime,
-            releaseMonth: timeOption ? timeOption.month : 13,
             status: 'upcoming',
             notes: document.getElementById('carNotes').value
         };
@@ -2467,11 +2605,11 @@
         const exportData = {
             brandConfigs: brandConfigs,
             carData: carData,
-            rightImageBase64: rightImageBase64, // 同时导出配图
+            xAxisConfig: xAxisConfig,
+            rightImageBase64: rightImageBase64,
             exportTime: new Date().toISOString(),
-            version: '2.0'
+            version: '3.0'
         };
-
         const dataStr = JSON.stringify(exportData, null, 2);
         const blob = new Blob([dataStr], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
@@ -2497,12 +2635,18 @@
 
                 if (data.brandConfigs && data.carData) {
                     brandConfigs = data.brandConfigs;
+
+                    if (data.xAxisConfig && Array.isArray(data.xAxisConfig.selectedMonths)) {
+                        xAxisConfig.selectedMonths = data.xAxisConfig.selectedMonths;
+                    }
+                    generateActiveTimeTicks();
+
                     carData = data.carData.map(car => ({
                         ...car,
-                        displayPrice: car.displayPrice || car.priceRange || '价格待定'
+                        displayPrice: car.displayPrice || car.priceRange || '价格待定',
+                        releaseTime: normalizeReleaseTime(car.releaseTime)
                     }));
 
-                    // 恢复配图（如果存在）
                     if (data.rightImageBase64) {
                         rightImageBase64 = data.rightImageBase64;
                         document.getElementById('rightDetailImage').src = rightImageBase64;
