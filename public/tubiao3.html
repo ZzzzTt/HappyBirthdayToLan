@@ -859,6 +859,17 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        .data-point {
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s ease;
+            transform-origin: center center;
+            transform-box: fill-box;
+            pointer-events: all;
+            will-change: transform;
+        }
+        .data-point:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
 <body>
@@ -1173,7 +1184,15 @@
     let isConfigLoaded = false;
     let rightImageBase64 = null;
     let showRightImage = false; // 新增：配图显示状态，默认关闭
-
+    let dragState = {
+        isDragging: false,
+        carId: null,
+        startMouseX: 0,
+        startMouseY: 0,
+        startUserOffsetX: 0,
+        startUserOffsetY: 0,
+        hasMoved: false   // 新增
+    };
     // ============================================
     // 初始化
     // ============================================
@@ -1204,6 +1223,12 @@
         document.getElementById('rightDetailImage').addEventListener('click', changeRightImage);
 
         refreshAll();
+
+        // 绑定图表区拖拽事件
+        const chartSvg = document.getElementById('chart');
+        chartSvg.addEventListener('mousemove', onDragMove);
+        chartSvg.addEventListener('mouseup', endDrag);
+        chartSvg.addEventListener('mouseleave', endDrag);
     }
 
     function initTimeSelect() {
@@ -1506,11 +1531,9 @@
         const svg = document.getElementById('chart');
         const data = getFilteredData();
 
-        // 根据是否显示配图调整图表尺寸
         const hasRightImage = showRightImage;
         const margin = {top: 80, right: hasRightImage ? 50 : 250, bottom: 100, left: 120};
 
-        // 动态计算宽度：如果显示配图，图表宽度减小；否则使用更大宽度
         const containerWidth = document.getElementById('chartWrapper').clientWidth;
         const width = containerWidth - margin.left - margin.right;
         const height = 900 - margin.top - margin.bottom;
@@ -1522,10 +1545,8 @@
         g.setAttribute('transform', `translate(${margin.left},${margin.top})`);
         svg.appendChild(g);
 
-        // 获取动态时间范围
         const timeRange = getTimeRange();
 
-        // 动态计算价格范围
         const allPrices = data.flatMap(d => [d.priceMin, d.priceMax]);
         const minPrice = Math.floor(Math.min(...allPrices, 20) / 10) * 10;
         const maxPrice = Math.ceil(Math.max(...allPrices, 70) / 10) * 10;
@@ -1535,8 +1556,6 @@
         }
 
         const yScale = val => height - ((val - minPrice) / (maxPrice - minPrice)) * height;
-
-        // X轴比例尺
         const xScale = val => {
             const range = timeRange.max - timeRange.min + 1;
             return ((val - timeRange.min) / (range - 1)) * width;
@@ -1594,7 +1613,6 @@
             } else {
                 text.textContent = option.label.replace('2025年', '').replace('2026年', '');
             }
-
             g.appendChild(text);
         });
 
@@ -1621,33 +1639,34 @@
             const x = xScale(car.releaseMonth);
             const y = yScale(priceMid);
 
-            // 防止重叠的偏移计算
-            let offsetX = 0;
-            let offsetY = 0;
-
+            // 防止重叠的自动偏移
+            let autoOffsetX = 0;
+            let autoOffsetY = 0;
             const processedSameMonth = [];
             for (let i = 0; i < index; i++) {
                 if (data[i].releaseMonth === car.releaseMonth) {
                     processedSameMonth.push(data[i]);
                 }
             }
-
             const overlapCars = processedSameMonth.filter(c => {
                 const otherPriceMid = (parseFloat(c.priceMin) + parseFloat(c.priceMax)) / 2;
                 const priceDiff = Math.abs(priceMid - otherPriceMid);
                 return priceDiff < 8;
             });
-
             if (overlapCars.length > 0) {
                 const spacing = Math.min(100, width / (overlapCars.length + 2));
                 const direction = overlapCars.length % 2 === 0 ? 1 : -1;
                 const level = Math.ceil(overlapCars.length / 2);
-                offsetX = direction * level * spacing;
-                offsetY = (overlapCars.length % 2 === 0 ? 1 : -1) * 40;
+                autoOffsetX = direction * level * spacing;
+                autoOffsetY = (overlapCars.length % 2 === 0 ? 1 : -1) * 40;
             }
 
-            let finalX = x + offsetX;
-            let finalY = y + offsetY;
+            // 用户拖拽偏移
+            const userOffsetX = car.dragOffsetX || 0;
+            const userOffsetY = car.dragOffsetY || 0;
+
+            let finalX = x + autoOffsetX + userOffsetX;
+            let finalY = y + autoOffsetY + userOffsetY;
 
             // 边界限制
             const iconRadius = 80;
@@ -1656,23 +1675,31 @@
 
             const iconConfig = brandConfigs[car.brand] || {type: 'text', value: car.brand[0], color: '#667eea'};
 
-            // 图标组
+            // 图标组（整组可拖拽）
             const iconGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             iconGroup.setAttribute('class', 'data-point');
             iconGroup.setAttribute('transform', `translate(${finalX}, ${finalY})`);
             iconGroup.style.cursor = 'pointer';
 
-            iconGroup.addEventListener('mouseenter', function(e) {
-                const circle = this.querySelector('circle');
-                const text = this.querySelector('text');
-                const image = this.querySelector('image');
+            // 记录基准位置与自动偏移，供拖拽计算使用
+            iconGroup.setAttribute('data-car-id', car.id);
+            iconGroup.setAttribute('data-base-x', x);
+            iconGroup.setAttribute('data-base-y', y);
+            iconGroup.setAttribute('data-auto-x', autoOffsetX);
+            iconGroup.setAttribute('data-auto-y', autoOffsetY);
 
+            // 鼠标悬停放大
+            iconGroup.addEventListener('mouseenter', function(e) {
+                if (dragState.isDragging) return;
+                const circle = this.querySelector('circle');
+                const brandText = this.querySelector('.brand-icon-text');
+                const image = this.querySelector('image');
                 if (circle) {
                     circle.setAttribute('r', 33);
                     circle.setAttribute('stroke-width', 3);
                 }
-                if (text) {
-                    text.setAttribute('font-size', '20');
+                if (brandText) {
+                    brandText.setAttribute('font-size', '20');
                 }
                 if (image) {
                     image.setAttribute('width', 72);
@@ -1680,22 +1707,21 @@
                     image.setAttribute('x', -36);
                     image.setAttribute('y', -36);
                 }
-
                 this.style.filter = 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))';
                 showTooltip(e, car, iconConfig);
             });
 
             iconGroup.addEventListener('mouseleave', function(e) {
+                if (dragState.isDragging) return;
                 const circle = this.querySelector('circle');
-                const text = this.querySelector('text');
+                const brandText = this.querySelector('.brand-icon-text');
                 const image = this.querySelector('image');
-
                 if (circle) {
                     circle.setAttribute('r', 27);
                     circle.setAttribute('stroke-width', 2);
                 }
-                if (text) {
-                    text.setAttribute('font-size', '16');
+                if (brandText) {
+                    brandText.setAttribute('font-size', '16');
                 }
                 if (image) {
                     image.setAttribute('width', 60);
@@ -1703,12 +1729,24 @@
                     image.setAttribute('x', -30);
                     image.setAttribute('y', -30);
                 }
-
                 this.style.filter = 'none';
                 hideTooltip();
             });
 
-            iconGroup.addEventListener('click', () => editCar(car.id));
+            iconGroup.addEventListener('click', function(e) {
+                if (dragState.hasMoved) {
+                    dragState.hasMoved = false;
+                    return; // 拖拽后不打开编辑
+                }
+                editCar(car.id);
+            });
+
+            // 拖拽开始
+            iconGroup.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                startDrag(e, car.id);
+            });
 
             // 背景圆
             const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -1741,14 +1779,15 @@
 
                 image.addEventListener('error', () => {
                     image.style.display = 'none';
-                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    text.setAttribute('text-anchor', 'middle');
-                    text.setAttribute('dy', '0.35em');
-                    text.setAttribute('font-size', '16');
-                    text.setAttribute('font-weight', 'bold');
-                    text.setAttribute('fill', iconConfig.color);
-                    text.textContent = car.brand[0];
-                    iconGroup.appendChild(text);
+                    const fallbackText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    fallbackText.setAttribute('text-anchor', 'middle');
+                    fallbackText.setAttribute('dy', '0.35em');
+                    fallbackText.setAttribute('font-size', '16');
+                    fallbackText.setAttribute('font-weight', 'bold');
+                    fallbackText.setAttribute('fill', iconConfig.color);
+                    fallbackText.setAttribute('class', 'brand-icon-text');
+                    fallbackText.textContent = car.brand[0];
+                    iconGroup.appendChild(fallbackText);
                 });
 
                 iconGroup.appendChild(image);
@@ -1759,43 +1798,44 @@
                 text.setAttribute('font-size', '16');
                 text.setAttribute('font-weight', 'bold');
                 text.setAttribute('fill', iconConfig.color);
+                text.setAttribute('class', 'brand-icon-text');
                 text.textContent = iconConfig.value || car.brand[0];
                 iconGroup.appendChild(text);
             }
 
-            g.appendChild(iconGroup);
-
-            // 车型名称
+            // 车型名称（相对坐标，跟随整组）
             const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            nameText.setAttribute('x', finalX);
-            nameText.setAttribute('y', finalY + 45);
+            nameText.setAttribute('x', 0);
+            nameText.setAttribute('y', 45);
             nameText.setAttribute('text-anchor', 'middle');
             nameText.setAttribute('class', 'car-name');
             nameText.textContent = car.model;
-            g.appendChild(nameText);
+            iconGroup.appendChild(nameText);
 
             // 车型类别
             const categoryText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            categoryText.setAttribute('x', finalX);
-            categoryText.setAttribute('y', finalY + 60);
+            categoryText.setAttribute('x', 0);
+            categoryText.setAttribute('y', 60);
             categoryText.setAttribute('text-anchor', 'middle');
             categoryText.setAttribute('font-size', '10');
             categoryText.setAttribute('fill', '#888');
             categoryText.textContent = car.category;
-            g.appendChild(categoryText);
+            iconGroup.appendChild(categoryText);
 
-            // 车长和轴距显示
-            if (car.length || car.wheelbase) {
+            // 车长和轴距
+            // 车长和轴距
+            if (car.length != null || car.wheelbase != null) {
                 const dimensionText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                dimensionText.setAttribute('x', finalX);
-                dimensionText.setAttribute('y', finalY + 75);
+                dimensionText.setAttribute('x', 0);
+                dimensionText.setAttribute('y', 75);
                 dimensionText.setAttribute('text-anchor', 'middle');
                 dimensionText.setAttribute('font-size', '10');
                 dimensionText.setAttribute('fill', '#667eea');
                 dimensionText.setAttribute('font-weight', '500');
 
-                let lengthStr = car.length || '-';
-                let wheelbaseStr = car.wheelbase || '-';
+                // 强制转为字符串，避免数字类型没有 .includes() 方法
+                let lengthStr = car.length != null ? String(car.length) : '-';
+                let wheelbaseStr = car.wheelbase != null ? String(car.wheelbase) : '-';
 
                 if (lengthStr && !lengthStr.includes('mm') && !isNaN(lengthStr)) {
                     lengthStr = lengthStr + '车长';
@@ -1818,24 +1858,114 @@
                 }
 
                 dimensionText.textContent = `${lengthStr}/${wheelbaseStr}`;
-                g.appendChild(dimensionText);
+                iconGroup.appendChild(dimensionText);
             }
 
             // 图表显示价格
             const priceText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            priceText.setAttribute('x', finalX);
-            priceText.setAttribute('y', finalY - 32);
+            priceText.setAttribute('x', 0);
+            priceText.setAttribute('y', -32);
             priceText.setAttribute('text-anchor', 'middle');
             priceText.setAttribute('font-size', '18');
             priceText.setAttribute('font-weight', 'bold');
             priceText.setAttribute('fill', '#e74c3c');
             const displayText = car.displayPrice || `${car.priceMin}-${car.priceMax}万`;
             priceText.textContent = displayText;
-            g.appendChild(priceText);
+            iconGroup.appendChild(priceText);
+
+            g.appendChild(iconGroup);
         });
     }
+    // ============================================
+    // 车标自由拖拽功能
+    // ============================================
+    function startDrag(evt, carId) {
+        const svg = document.getElementById('chart');
+        const pt = svg.createSVGPoint();
+        pt.x = evt.clientX;
+        pt.y = evt.clientY;
+        const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
 
+        const car = carData.find(c => c.id === carId);
+        if (!car) return;
+
+        dragState = {
+            isDragging: true,
+            carId: carId,
+            startMouseX: svgP.x,
+            startMouseY: svgP.y,
+            startUserOffsetX: car.dragOffsetX || 0,
+            startUserOffsetY: car.dragOffsetY || 0
+        };
+
+        hideTooltip();
+        const iconGroup = document.querySelector(`g[data-car-id="${carId}"]`);
+        if (iconGroup) iconGroup.style.cursor = 'grabbing';
+    }
+
+    function onDragMove(evt) {
+        if (!dragState.isDragging) return;
+
+        const svg = document.getElementById('chart');
+        const pt = svg.createSVGPoint();
+        pt.x = evt.clientX;
+        pt.y = evt.clientY;
+        const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+        const deltaX = svgP.x - dragState.startMouseX;
+        const deltaY = svgP.y - dragState.startMouseY;
+
+        // 新增：检测是否产生实际移动
+        if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+            dragState.hasMoved = true;
+        }
+
+        const iconGroup = document.querySelector(`g[data-car-id="${dragState.carId}"]`);
+        if (!iconGroup) return;
+
+        const baseX = parseFloat(iconGroup.getAttribute('data-base-x'));
+        const baseY = parseFloat(iconGroup.getAttribute('data-base-y'));
+        const autoX = parseFloat(iconGroup.getAttribute('data-auto-x'));
+        const autoY = parseFloat(iconGroup.getAttribute('data-auto-y'));
+
+        const newUserOffsetX = dragState.startUserOffsetX + deltaX;
+        const newUserOffsetY = dragState.startUserOffsetY + deltaY;
+
+        const newFinalX = baseX + autoX + newUserOffsetX;
+        const newFinalY = baseY + autoY + newUserOffsetY;
+
+        iconGroup.setAttribute('transform', `translate(${newFinalX}, ${newFinalY})`);
+    }
+
+    function endDrag(evt) {
+        if (!dragState.isDragging) return;
+
+        const svg = document.getElementById('chart');
+        const pt = svg.createSVGPoint();
+        pt.x = evt.clientX;
+        pt.y = evt.clientY;
+        const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+        const deltaX = svgP.x - dragState.startMouseX;
+        const deltaY = svgP.y - dragState.startMouseY;
+
+        const car = carData.find(c => c.id === dragState.carId);
+        if (car) {
+            car.dragOffsetX = (car.dragOffsetX || 0) + deltaX;
+            car.dragOffsetY = (car.dragOffsetY || 0) + deltaY;
+        }
+
+        const iconGroup = document.querySelector(`g[data-car-id="${dragState.carId}"]`);
+        if (iconGroup) iconGroup.style.cursor = 'pointer';
+
+        dragState.isDragging = false;
+        dragState.carId = null;
+        // 保险：100ms 后强制清除拖拽标志，防止未触发 click 导致标志残留
+        setTimeout(() => { dragState.hasMoved = false; }, 100);
+    }
     function showTooltip(e, car, iconConfig) {
+        if (dragState.isDragging) return;
+
         const tooltip = document.getElementById('tooltip');
         const rect = e.target.getBoundingClientRect();
         const containerRect = document.querySelector('.chart-container').getBoundingClientRect();
